@@ -1,6 +1,5 @@
 ;; -*- lexical-binding: t; eval: (local-set-key (kbd "C-c i") #'consult-outline); outline-regexp: ";;;"; -*-
 
-
 ;;;****************************** GENERAL STUFF ******************************
 (setq warning-minimum-level :error)
 
@@ -10,8 +9,9 @@
 ;; Turn beep off
 (setq visible-bell nil)
 
-(setq gc-cons-threshold 100000000)
-(setq read-process-output-max (* 1024 1024)) ;; 1mb
+(setq gc-cons-threshold (* 128 1024 1024))
+(setq read-process-output-max (* 4 1024 1024))
+(setq process-adaptive-read-buffering nil)
 
 ;; y or n is enough
 (defalias 'yes-or-no-p 'y-or-n-p)

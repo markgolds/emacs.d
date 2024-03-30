@@ -477,9 +477,10 @@
   "Drop Pyright 'variable not accessed' notes from DIAGS."
   (list (seq-remove (lambda (d)
                       (and
-		       ;; (eq (flymake-diagnostic-type d) 'eglot-note)
+		       (eq (flymake-diagnostic-type d) 'eglot-note)
                        (s-starts-with? "Pyright:" (flymake-diagnostic-text d))
-                       (s-ends-with? "is not accessed" (flymake-diagnostic-text d))))
+                       ;; (s-ends-with? "is not accessed" (flymake-diagnostic-text d))
+		       ))
                     (car diags))))
 (advice-add 'eglot--report-to-flymake :filter-args #'my-fix-eglot-diagnostics)
 ;; (advice-remove 'eglot--report-to-flymake #'my-fix-eglot-diagnostics)
@@ -817,6 +818,7 @@
 	   (superword-mode nil "subword")
 	   (yas-minor-mode nil "yasnippet")
 	   (isortify-mode nil "isortify")
+	   (auto-revert-mode nil "autorevert")
 	   (ruff-format-on-save-mode nil "ruff-format")
 	   ))
 
@@ -1215,3 +1217,17 @@ C-e: jump to end of line
 (add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
 
 
+
+(require 'uniquify) (setq uniquify-buffer-name-style 'forward)
+
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :custom ((projectile-completion-system 'ivy)))
+
+(use-package whole-line-or-region
+  :diminish whole-line-or-region-local-mode
+  :config (whole-line-or-region-global-mode)
+  )
+
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)

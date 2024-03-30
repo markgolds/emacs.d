@@ -153,7 +153,6 @@
 	 :created t        ; properties
 	 )
 	("j" "Journal" entry (file+datetree "~/Dropbox/org/journal.org") "* \n%?\n" :clock-in t)
-	("k" "Journal-night" entry (file+datetree "~/Dropbox/org/journal-night.org") "* \n%?\n" :clock-in t)
         ))
 
 ;; indentation for lists in org mode
@@ -162,17 +161,15 @@
 (add-hook 'org-mode-hook 'org-indent-mode)
 
 (setq org-agenda-files (list
-			;; "~/Dropbox/org/references/articles.org"
 			"~/Dropbox/org/quicknotes.org"
 			"~/Dropbox/org/todos.org"
-			;;"~/Dropbox/org/journal.org"
 			"~/Dropbox/org/timelog.org"
 			"~/Dropbox/org/birthdays.org"
 			"~/Dropbox/org/Ped.org"
 			     ))
 
 (setq org-todo-keywords
-       '((sequence "TODO(t)" "READ" "STUDY" "PAPERS" "CODE" "ANKI" "|" "DONE(d)" "CANCELLED(c)")))
+       '((sequence "TODO(t)" "READ" "STUDY" "PAPERS" "CODE" "|" "DONE(d)" "CANCELLED(c)")))
 
 (setq org-todo-keyword-faces
   '(("TODO" . (:foreground "#ff39a3" :weight bold))

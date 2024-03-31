@@ -12,6 +12,7 @@
 (setq gc-cons-threshold (* 128 1024 1024))
 (setq read-process-output-max (* 4 1024 1024))
 (setq process-adaptive-read-buffering nil)
+(setq jit-lock-defer-time 0)
 
 ;; y or n is enough
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -47,7 +48,8 @@
 
 (setq eldoc-echo-area-use-multiline-p nil)
 
-(setq dired-listing-switches "-alFh")  ;; ls -alFh when opening dired
+;; ls -alFh when opening dired
+(setq dired-listing-switches "-alFh")
 
 ;; Setup straight --------------------------------------------------
 ;; (setq package-enable-at-startup nil)
@@ -79,6 +81,12 @@
 (use-package git)
 ;; End straight.el
 
+;; C-w to kill a line
+(use-package whole-line-or-region
+  :diminish whole-line-or-region-local-mode
+  :config (whole-line-or-region-global-mode)
+  )
+
 ;;;****************************** ORG STUFF  ******************************
 
 ;; Disable line numbers for some modes
@@ -89,7 +97,8 @@
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-(setq org-confirm-babel-evaluate nil)
+;; turn off annoying confirmation requests
+(setq org-confirm-babel-evaluate nil) 
 
 (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
 
@@ -97,7 +106,7 @@
 (setq holiday-islamic-holidays nil)
 
 ;; don't show asterix in *bold* in org mode, etc...
-(setq org-hide-emphasis-markers t)
+(setq org-hide-emphasis-markers t) 
 
 (global-set-key "\C-cl" 'org-store-link)
 (global-set-key "\C-ca" 'org-agenda)
@@ -178,7 +187,6 @@
 ("STUDY" . (:foreground "white" :weight bold))
 ("PAPERS" . (:foreground "#b3c6e5" :weight bold))
 ("CODE" . (:foreground "#bc86e0" :weight bold))
-("ANKI" . (:foreground "#e2ab58" :weight bold))
 ))
 
 ;; sort by todo state (for todo list) and then time (for daily logs)
@@ -206,9 +214,18 @@
 
 ;; Handy key definition
 (define-key global-map "\M-Q" 'unfill-paragraph)
+
+(with-eval-after-load 'org
+  ;; Allow multiple line Org emphasis markup.
+  ;; http://emacs.stackexchange.com/a/13828/115
+  (setcar (nthcdr 4 org-emphasis-regexp-components) 20) ;Up to 20 lines, default is just 1
+  ;; Below is needed to apply the modified `org-emphasis-regexp-components'
+  ;; settings from above.
+  (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components))
+
 ;;;****************************** MAIN PACKAGES ******************************;;
 
-;; (use-package markdown-mode)
+(use-package markdown-mode)
 
 (use-package company-statistics)
 (add-hook 'after-init-hook 'company-statistics-mode)
@@ -234,7 +251,7 @@
 	"~/.emacs.d/elpa/yasnippet-snippets-20240221.1621/snippets"
         ))
 
-;god-mode
+;; god-mode
 (use-package god-mode)
 (global-set-key (kbd "<escape>") 'god-mode-all)
 (setq god-exempt-major-modes nil)
@@ -253,7 +270,7 @@
           (t (progn
                (set-face-background 'mode-line (if limited-colors-p "black" "#0a2832"))
                (set-face-background 'mode-line-inactive (if limited-colors-p "black" "#0a2832")))))))
-;end god-mode
+;; end god-mode
 
 (use-package drag-stuff
   :diminish
@@ -1175,14 +1192,13 @@ C-e: jump to end of line
 ;;   :config
 ;;   (eglot-booster-mode))
 
-;; (use-package eglot-booster
-;;   :ensure t
-;;   :straight (:type git :host github :repo "joaotavora/eglot-booster")
-;;   :after eglot
-;;   :config
-;;   (eglot-booster-mode))
+(use-package eglot-booster
+  :ensure t
+  :straight (:type git :host github :repo "joaotavora/eglot-booster")
+  :after eglot
+  :config
+  (eglot-booster-mode))
 
-;; With use-package:
 ;; (use-package company-box
 ;;   :hook (company-mode . company-box-mode)
 ;;   ;; :config (setq company-box-doc-frame-parameters ((internal-border-width . 5)))
@@ -1221,10 +1237,6 @@ C-e: jump to end of line
   :diminish projectile-mode
   :config (projectile-mode)
   :custom ((projectile-completion-system 'ivy)))
-
-(use-package whole-line-or-region
-  :diminish whole-line-or-region-local-mode
-  :config (whole-line-or-region-global-mode)
-  )
-
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+
+

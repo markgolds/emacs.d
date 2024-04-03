@@ -1,7 +1,7 @@
 ;; -*- lexical-binding: t; eval: (local-set-key (kbd "C-c i") #'consult-outline); outline-regexp: ";;;"; -*-
 
 ;;;****************************** GENERAL STUFF ******************************
-(setq warning-minimum-level :error)
+;; (setq warning-minimum-level :error)
 
 ;; no start-up screen
 (setq inhibit-startup-message t)
@@ -10,9 +10,11 @@
 (setq visible-bell nil)
 
 (setq gc-cons-threshold (* 128 1024 1024))
-(setq read-process-output-max (* 4 1024 1024))
+(setq read-process-output-max (* 1 1024 1024))
 (setq process-adaptive-read-buffering nil)
-(setq jit-lock-defer-time 0)
+
+;; if higher you'll notice a delay in syntax highlighting when scrolling
+(setq jit-lock-defer-time 0)  
 
 ;; y or n is enough
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -26,7 +28,7 @@
 (set-fringe-mode '(12 . 0))  ; extra space on left, none on right
 
 ;; Remembering recently edited files, recentf-open
-;; (recentf-mode 1)
+(recentf-mode 1)
 
 ;; Remembering minibuffer prompt history
 (setq history-length 25)
@@ -47,10 +49,12 @@
 (show-paren-mode t)
 
 (setq eldoc-echo-area-use-multiline-p nil)
+(setq eldoc-idle-delay 0)
 
 ;; ls -alFh when opening dired
 (setq dired-listing-switches "-alFh")
 
+(winner-mode 1)
 ;; Setup straight --------------------------------------------------
 ;; (setq package-enable-at-startup nil)
 
@@ -280,51 +284,286 @@
   :config (drag-stuff-global-mode 1)
   )
 
-(use-package counsel
-  :diminish
-  :config
-  (counsel-mode 1))
+;; ------------------------------IVY------------------------------
 
-(use-package ivy-prescient
-  :config
-  ;; Uncomment the following line to have sorting remembered across sessions!
-  (prescient-persist-mode 1)
+;; (use-package counsel
+;;   :diminish
+;;   :config
+;;   (counsel-mode 1))
+
+;; (use-package ivy-prescient
+;;   :config
+;;   ;; Uncomment the following line to have sorting remembered across sessions!
+;;   (prescient-persist-mode 1)
+;;   )
+
+;; (use-package company-prescient
+;;   :config
+;;   ;; Uncomment the following line to have sorting remembered across sessions!
+;;   (prescient-persist-mode 1)
+;;   )
+
+;; ;; swiper is an ivy enhanced version of isearch.
+;; (use-package swiper
+;;   :bind (("M-s" . counsel-grep-or-swiper)))
+
+;; (use-package ivy-hydra)
+
+;; (use-package ivy
+;;   ;; :bind (("TAB" . ivy-alt-done))
+;;   :diminish
+;;   :config
+;;   (ivy-mode 1)
+;;   (ivy-prescient-mode 1)
+;;   (setq ivy-initial-inputs-alist nil)  ;; removes ‘^’ in things like counsel-M-x and other ivy/counsel prompts.
+;;   )
+
+;; ;; The following line 
+;; ;; The default ‘^’ string means that if you type something immediately after this string only completion candidates that begin with what you typed are shown.  Most of the time, I’m searching for a command without knowing what it begins with though.
+
+;; (use-package ivy-rich
+;;   :after ivy
+;;   :custom
+;;   (ivy-virtual-abbreviate 'full
+;;    ivy-rich-switch-buffer-align-virtual-buffer t
+;;    ivy-rich-path-style 'abbrev)
+;;   :config
+;;   (ivy-set-display-transformer 'ivy-switch-buffer
+;;                                'ivy-rich-switch-buffer-transformer)
+;;   (ivy-rich-mode 1)) ;; this gets us descriptions in M-x.
+;; ------------------------------ENDIVY
+
+;; Enable vertico
+(use-package vertico
+   :straight (vertico :files (:defaults "extensions/*")
+                     :includes (vertico-indexed vertico-multiform vertico-directory vertico-quick))
+  :init
+  (vertico-mode)
+  (vertico-indexed-mode)
+  (vertico-multiform-mode)
+  :bind
+  (:map vertico-map
+   ;; ("<tab>" #'vertico-insert) ; Set manually otherwise setting `vertico-quick-insert' overrides this
+   ;; ("<escape>" #'minibuffer-keyboard-quit)
+	("?" . #'minibuffer-completion-help)
+	("C-M-n" . #'vertico-next-group)
+	("C-M-p" . #'vertico-previous-group)
+	;; Multiform toggles
+	("<backspace>" . #'vertico-directory-delete-char)
+	("C-w" . #'vertico-directory-delete-word)
+	("C-<backspace>" . #'vertico-directory-delete-word)
+	("RET" . #'vertico-directory-enter)
+	;; ("C-i" #'vertico-quick-insert)
+	;; ("C-o" #'vertico-quick-exit)
+	;; ("M-o" #'kb/vertico-quick-embark)
+	("M-G" . #'vertico-multiform-grid)
+	("M-F" . #'vertico-multiform-flat)
+	("M-R" . #'vertico-multiform-reverse)
+	("M-U" . #'vertico-multiform-unobtrusive)
+	("C-l" . #'kb/vertico-multiform-flat-toggle)
+	("M-q" . #'vertico-quick-insert)
+	("C-q" . #'vertico-quick-insert)
+   )
+  ;; Different scroll margin
+  ;; (setq vertico-scroll-margin 0)
+
+  ;; Show more candidates
+  ;; (setq vertico-count 20)
+
+  ;; Grow and shrink the Vertico minibuffer
+  ;; (setq vertico-resize t)
+
+  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+  ;; (setq vertico-cycle t)
   )
 
-(use-package company-prescient
-  :config
-  ;; Uncomment the following line to have sorting remembered across sessions!
-  (prescient-persist-mode 1)
+;; Persist history over Emacs restarts. Vertico sorts by history position.
+(use-package savehist
+  :init
+  (savehist-mode))
+
+;; A few more useful configurations...
+(use-package emacs
+  :init
+  ;; Add prompt indicator to `completing-read-multiple'.
+  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+  ;; Do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+  ;; Support opening new minibuffers from inside existing minibuffers.
+  (setq enable-recursive-minibuffers t)
+
+  ;; Emacs 28 and newer: Hide commands in M-x which do not work in the current
+  ;; mode.  Vertico commands are hidden in normal buffers. This setting is
+  ;; useful beyond Vertico.
+  (setq read-extended-command-predicate #'command-completion-default-include-p))
+
+;; ------------------------------ MARGINALIA ------------------------------
+;; Enable rich annotations using the Marginalia package
+(use-package marginalia
+  ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
+  ;; available in the *Completions* buffer, add it to the
+  ;; `completion-list-mode-map'.
+  :bind (:map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
+
+  
+  ;; The :init section is always executed.
+  :init
+
+  ;; Marginalia must be activated in the :init section of use-package such that
+  ;; the mode gets enabled right away. Note that this forces loading the
+  ;; package.
+  (marginalia-mode))
+
+;;------------------------------CONSULT------------------------------
+(use-package consult
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+  :bind (
+	 ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+	 ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+ 	 ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+	 ("M-g f" . consult-flymake)
+	 ("M-g o" . consult-outline)
+	 ("M-s" . consult-line)
+	 )
+  :init
+  (setq register-preview-delay 0.5
+        register-preview-function #'consult-register-format)
   )
+(key-chord-define-global "pf" 'consult-project-buffer)
 
-;; swiper is an ivy enhanced version of isearch.
-(use-package swiper
-  :bind (("M-s" . counsel-grep-or-swiper)))
-
-(use-package ivy-hydra)
-
-(use-package ivy
-  ;; :bind (("TAB" . ivy-alt-done))
-  :diminish
-  :config
-  (ivy-mode 1)
-  (ivy-prescient-mode 1)
-  (setq ivy-initial-inputs-alist nil)  ;; removes ‘^’ in things like counsel-M-x and other ivy/counsel prompts.
-  )
-
-;; The following line 
-;; The default ‘^’ string means that if you type something immediately after this string only completion candidates that begin with what you typed are shown.  Most of the time, I’m searching for a command without knowing what it begins with though.
-
-(use-package ivy-rich
-  :after ivy
+(use-package orderless
+  :ensure t
   :custom
-  (ivy-virtual-abbreviate 'full
-   ivy-rich-switch-buffer-align-virtual-buffer t
-   ivy-rich-path-style 'abbrev)
-  :config
-  (ivy-set-display-transformer 'ivy-switch-buffer
-                               'ivy-rich-switch-buffer-transformer)
-  (ivy-rich-mode 1)) ;; this gets us descriptions in M-x.
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
+
+
+(use-package saveplace
+  :init (save-place-mode))
+
+
+(use-package corfu
+  ;; Optional customizations
+  :custom
+  ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  (corfu-auto t)                 ;; Enable auto completion
+  ;; (corfu-separator ?\s)          ;; Orderless field separator, use C-spc
+  ;; (corfu-separator (kbd "SPC"))         ;;   ;; Space as separator
+  (corfu-auto-delay  0.1) ;; TOO SMALL - NOT RECOMMENDED
+  (corfu-auto-prefix 1) ;; TOO SMALL - NOT RECOMMENDED
+  (completion-styles '(orderless-fast basic))
+  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+  ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
+  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+  ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+
+  ;; Enable Corfu only for certain modes.
+  :hook ((prog-mode . corfu-mode)
+         (shell-mode . corfu-mode)
+         (eshell-mode . corfu-mode))
+
+  ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+  ;; be used globally (M-/).  See also the customization variable
+  ;; `global-corfu-modes' to exclude certain modes.
+  :init
+  (global-corfu-mode)
+  (corfu-indexed-mode)
+  ;; (corfu-popupinfo-mode)
+  (corfu-history-mode)
+  (corfu-echo-mode)
+  )
+
+(add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+
+;; SPC as separator
+(setq corfu-separator 32)
+
+;; highly recommanded to use corfu-separator with "32" (space)
+(define-key corfu-map (kbd "SPC")
+  (lambda ()
+    (interactive)
+    (if current-prefix-arg
+        ;;we suppose that we want leave the word like that, so do a space
+        (progn
+          (corfu-quit)
+          (insert " "))
+      (if (and (= (char-before) corfu-separator)
+               (or
+                ;; check if space, return or nothing after
+                (not (char-after))
+                (= (char-after) ?\s)
+                (= (char-after) ?\n)))
+          (progn
+            (corfu-insert)
+            (insert " "))
+        (corfu-insert-separator)))))
+
+;; ;; Add extensions
+;; (use-package cape
+;;   ;; Bind dedicated completion commands
+;;   ;; Alternative prefix keys: C-c p, M-p, M-+, ...
+;;   :bind (("C-c p p" . completion-at-point) ;; capf
+;;          ("C-c p t" . complete-tag)        ;; etags
+;;          ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
+;;          ("C-c p h" . cape-history)
+;;          ("C-c p f" . cape-file)
+;;          ("C-c p k" . cape-keyword)
+;;          ("C-c p s" . cape-elisp-symbol)
+;;          ("C-c p e" . cape-elisp-block)
+;;          ("C-c p a" . cape-abbrev)
+;;          ("C-c p l" . cape-line)
+;;          ("C-c p w" . cape-dict)
+;;          ("C-c p :" . cape-emoji)
+;;          ("C-c p \\" . cape-tex)
+;;          ("C-c p _" . cape-tex)
+;;          ("C-c p ^" . cape-tex)
+;;          ("C-c p &" . cape-sgml)
+;;          ("C-c p r" . cape-rfc1345))
+;;   :init
+;;   ;; Add to the global default value of `completion-at-point-functions' which is
+;;   ;; used by `completion-at-point'.  The order of the functions matters, the
+;;   ;; first function returning a result wins.  Note that the list of buffer-local
+;;   ;; completion functions takes precedence over the global list.
+;;   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+;;   (add-to-list 'completion-at-point-functions #'cape-file)
+;;   (add-to-list 'completion-at-point-functions #'cape-elisp-block)
+;;   ;;(add-to-list 'completion-at-point-functions #'cape-history)
+;;   ;;(add-to-list 'completion-at-point-functions #'cape-keyword)
+;;   ;;(add-to-list 'completion-at-point-functions #'cape-tex)
+;;   ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
+;;   ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
+;;   ;;(add-to-list 'completion-at-point-functions #'cape-abbrev)
+;;   ;;(add-to-list 'completion-at-point-functions #'cape-dict)
+;;   ;;(add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
+;;   ;;(add-to-list 'completion-at-point-functions #'cape-line)
+;; )
+
+
+(defun orderless-fast-dispatch (word index total)
+  (and (= index 0) (= total 1) (length< word 4)
+       (cons 'orderless-literal-prefix word)))
+
+(orderless-define-completion-style orderless-fast
+  (orderless-style-dispatchers '(orderless-fast-dispatch))
+  (orderless-matching-styles '(orderless-literal orderless-regexp)))
+
+
+
 
 (use-package all-the-icons
   :if (display-graphic-p))
@@ -334,6 +573,22 @@
 (use-package peep-dired)
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 
+(use-package all-the-icons-completion
+  :after (marginalia all-the-icons)
+  :hook (marginalia-mode . all-the-icons-completion-marginalia-setup)
+  :init
+  (all-the-icons-completion-mode))
+
+(use-package nerd-icons
+  :custom
+  ;; The Nerd Font you want to use in GUI
+  ;; "Symbols Nerd Font Mono" is the default and is recommended
+  ;; but you can use any other Nerd Font if you want
+  (nerd-icons-font-family "Symbols Nerd Font Mono")
+  ;; (nerd-icons-font-family "EnvyCodeR Nerd Font Mono")
+  )
+
+(use-package nerd-icons-corfu)
 
 (use-package transpose-frame
   :bind ("C-S-t" . transpose-frame))
@@ -508,7 +763,7 @@
               ("C-c C-o" . python-sort-imports)
               ("C-c C-f" . eglot-format-buffer))
   :hook ((python-ts-mode . eglot-ensure)
-         ;; (python-ts-mode . flyspell-prog-mode)
+         (python-ts-mode . flyspell-prog-mode)
          ;; (python-ts-mode . superword-mode)
          (python-ts-mode . hs-minor-mode)
          ;; (python-ts-mode . (lambda () (set-fill-column 88)))
@@ -544,28 +799,37 @@
 (use-package isortify
   :hook (python-ts-mode . isortify-mode))
 
-(use-package company
-  :ensure t
-  :hook ((python-ts-mode . company-mode))
-  :diminish
-  :config
-  (setq company-prescient-mode 1)
-  (setq-default
-   company-idle-delay 0
-      company-minimum-prefix-length 1
-      company-show-numbers t
-      company-tooltip-limit 10
-      company-tooltip-align-annotations t
-      ;; invert the navigation direction if the the completion popup-isearch-match
-      ;; is displayed on top (happens near the bottom of windows)
-      company-tooltip-flip-when-above t)
-  )
+;; (use-package company
+;;   :ensure t
+;;   :hook ((python-ts-mode . company-mode))
+;;   :diminish
+;;   :config
+;;   (setq company-prescient-mode 1)
+;;   (setq-default
+;;    company-idle-delay 0
+;;       company-minimum-prefix-length 1
+;;       company-show-numbers t
+;;       company-tooltip-limit 10
+;;       company-tooltip-align-annotations t
+;;       ;; invert the navigation direction if the the completion popup-isearch-match
+;;       ;; is displayed on top (happens near the bottom of windows)
+;;       company-tooltip-flip-when-above t)
+;;   )
 
-(with-eval-after-load 'company
-  (define-key company-active-map [tab] 'company-complete-selection)
-  (define-key company-active-map (kbd "TAB") 'company-complete-selection))
+;; (with-eval-after-load 'company
+;;   (define-key company-active-map [tab] 'company-complete-selection)
+;;   (define-key company-active-map (kbd "TAB") 'company-complete-selection)
+;;   ;; (define-key company-active-map (kbd "return") nil)
+;; ;;  )
+;; ;;(with-eval-after-load 'company
+;;   (define-key company-active-map (kbd "<return>") nil)
+;;   (define-key company-active-map (kbd "RET") nil)
+;;   (define-key company-active-map (kbd "C-RET") #'company-complete-selection)
+;;   (define-key company-active-map (kbd "C-<return>") #'company-complete-selection))
 
-(add-hook 'after-init-hook 'global-company-mode)
+;; ;; (define-key company-active-map (kbd "<return>") nil)
+;; ;; (define-key company-active-map (kbd "<return>") nil)
+;; (add-hook 'after-init-hook 'global-company-mode)
 
 ;; ******************************  Debugging  ******************************
 ;; (use-package realgud
@@ -703,80 +967,53 @@
 ;; (add-to-list 'code-cells-eval-region-commands '(jupyter-repl-interaction-mode . gm/jupyter-eval-region))
 
 ;; (use-package jupyter :defer t :custom (jupyter-repl-echo-eval-p t))
- (setq python-shell-interpreter "ipython"
-        python-shell-interpreter-args "-i --simple-prompt --InteractiveShell.display_page=True")
+ ;; (setq python-shell-interpreter "ipython"
+        ;; python-shell-interpreter-args "-i --simple-prompt --InteractiveShell.display_page=True")
 
 (use-package elfeed
   :config
-  (setq elfeed-search-feed-face ":foreground #ffffff :weight bold"
+  (setq ;;elfeed-search-feed-face ":foreground #ffffff :weight bold"
 	elfeed-feeds (quote
 		      (("https://hnrss.org/frontpage" hackernews)
 		       ("https://www.reddit.com/r/emacs.rss" emacs reddit)
-		      ))))  
+		       ("https://www.reddit.com/r/montreal.rss" montreal reddit)
+		      ))))
 
 
 ;;;****************************** STYLE ******************************
 
 
 ;; (set-face-attribute 'default nil :font "Fira Code Retina 10")
-(set-face-attribute 'default nil :font "Menlo 10")
+;; (set-face-attribute 'default nil :font "Menlo 10")
 ;; (set-face-attribute 'default nil :font "Monaco 10")
-;; (set-face-attribute 'default nil :font "Inconsolata 12")
+;; (set-face-attribute 'default nil :font "BlexMono Nerd Font 10")
+;; (set-face-attribute 'default nil :font "Iosevka Comfy Wide Medium 10")
+(set-face-attribute 'default nil :font "Iosevka Comfy Wide")
+;; (set-face-attribute 'default nil :font "Iosevka Comfy Wide Duo 10")
+;; (set-face-attribute 'default nil :font "Iosevka Comfy Wide 10")
+;; (set-face-attribute 'default nil :font "Iosevka Comfy Wide Motion Duo 10")
+;; (set-face-attribute 'default nil :font "Inconsolata 11")
 ;; (set-face-attribute 'default nil :font "IBM 3270 12")
+;; (set-face-attribute 'default nil :font "EnvyCodeR Nerd Font 11")
+;; (set-face-attribute 'default nil :font "Iosevka Fixed SS04 12")
+;; (set-face-attribute 'default nil :font "Iosevka Term SS05 11")
+;; (set-face-attribute 'default nil :font "Latin Modern Mono 11")
+;; (set-face-attribute 'default nil :font "CommitMono Nerd Font 10")
 
 ;; (set-frame-font "Menlo:pixelsize=13")
-;; (set-frame-font "Inconsolata:pixelsize=17")
+;; (set-frame-font "Inconsolata:pixelsize=15")
 
 (use-package ef-themes
   :ensure t
   :bind
   ("<f5>" . ef-themes-toggle)
   :custom
-  (ef-themes-to-toggle '(ef-symbiosis ef-day))
+  (ef-themes-to-toggle '(ef-elea-dark ef-day))
   ;; (ef-themes-variable-pitch-ui t)
   (ef-themes-mixed-fonts t)
   (ef-themes-headings '((0 1.4) (1 1.3) (2 1.2) (3 1.1)))
   :init
   (load-theme (if (display-graphic-p) 'ef-day 'ef-symbiosis) t))
-
-;;   (use-package ef-themes
-;;    ;; :defer
-;;    :straight (ef-themes :type git :host github :repo "protesilaos/ef-themes")
-;;    :bind ("<f5>" . ef-themes-toggle)
-;;    :config
-   
-;;    ;; (ef-themes-select 'ef-summer)
-;;    (ef-themes-select 'ef-frost)
-;;    (defun my-ef-themes-hl-todo-faces ()
-;;   "Configure `hl-todo-keyword-faces' with Ef themes colors.
-;; The exact color values are taken from the active Ef theme."
-;;   (ef-themes-with-colors
-;;     (setq hl-todo-keyword-faces
-;;           `(("HOLD" . ,yellow)
-;;             ("TODO" . ,red)
-;;             ("NEXT" . ,blue)
-;;             ("THEM" . ,magenta)
-;;             ("PROG" . ,cyan-warmer)
-;;             ("OKAY" . ,green-warmer)
-;;             ("DONT" . ,yellow-warmer)
-;;             ("FAIL" . ,red-warmer)
-;;             ("BUG" . ,red-warmer)
-;;             ("DONE" . ,green)
-;;             ("NOTE" . ,blue-warmer)
-;;             ("KLUDGE" . ,cyan)
-;;             ("HACK" . ,cyan)
-;;             ("TEMP" . ,red)
-;;             ("FIXME" . ,red-warmer)
-;;             ("XXX+" . ,red-warmer)
-;;             ("REVIEW" . ,red)
-;;             ("DEPRECATED" . ,yellow))))))
-
-;; (add-hook 'ef-themes-post-load-hook #'my-ef-themes-hl-todo-faces)
-;;    (setq ef-themes-to-toggle (list 'ef-frost 'ef-symbiosis )
-;;    )
-
-
-;; (load-theme 'ef-spring t)
 
 
 ;; (use-package modus-themes
@@ -806,24 +1043,24 @@
 ;;   (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
 
 ;; use-package with package.el:
-(use-package dashboard
-  :config
-  ;; Content is not centered by default. To center, set
-  (setq dashboard-center-content t)
-  ;; vertically center content
-  (setq dashboard-vertically-center-content t)
-  ;; (setq dashboard-startup-banner nil)
-  ;; (setq dashboard-startup-banner 'nil)
-  ;; To disable shortcut "jump" indicators for each section, set
-  ;; (setq dashboard-show-shortcuts nil)
-  ;; (setq dashboard-startup-banner 'nil)
-  (setq dashboard-items '((recents   . 5)
-                        (bookmarks . 5)
-                        (projects  . 5)
-                        ;; (agenda    . 5)
-                        (registers . 5)))
-  (dashboard-setup-startup-hook)
-  )
+;; (use-package dashboard
+;;   :config
+;;   ;; Content is not centered by default. To center, set
+;;   (setq dashboard-center-content t)
+;;   ;; vertically center content
+;;   (setq dashboard-vertically-center-content t)
+;;   ;; (setq dashboard-startup-banner nil)
+;;   ;; (setq dashboard-startup-banner 'nil)
+;;   ;; To disable shortcut "jump" indicators for each section, set
+;;   ;; (setq dashboard-show-shortcuts nil)
+;;   ;; (setq dashboard-startup-banner 'nil)
+;;   (setq dashboard-items '((recents   . 5)
+;;                         (bookmarks . 5)
+;;                         (projects  . 5)
+;;                         ;; (agenda    . 5)
+;;                         (registers . 5)))
+;;   (dashboard-setup-startup-hook)
+;;   )
  
 (use-package delight)
 (delight '((eldoc-mode nil "eldoc")
@@ -878,8 +1115,10 @@ C-m: mark word      ^ ^             _<home>_: scroll other down          C-;: co
 M-t: teleport       ^ ^                  _s_: search thing @ pt       C-S-d:  my-kill-word                ^M-e^: end of                C-M-u: up to bracket
   C: copy-line	    ^ ^			 ^ ^								    ^ ^		               C-M-k: kill sexp
   Y: yank-line
+C-w: kill-line-go
   z: zap region
 C-e: jump to end of line
+
 "
   ("g" text-scale-increase "zoom in")
   ("l" text-scale-decrease "zoom out")
@@ -913,6 +1152,12 @@ C-e: jump to end of line
   (save-excursion (yank))
   t)
 
+(defun my-avy-action-kill-whole-line (pt)
+  (goto-char pt)
+  (kill-whole-line)
+  (indent-for-tab-command nil)
+  t)
+
 (defun my-avy-action-goto-end-of-line (pt)
   "Goto PT."
   (let ((frame (window-frame (selected-window))))
@@ -942,6 +1187,7 @@ C-e: jump to end of line
       (alist-get ?\M-t avy-dispatch-alist) 'avy-action-teleport
       (alist-get ?C avy-dispatch-alist) 'my-avy-action-copy-whole-line
       (alist-get ?Y avy-dispatch-alist) 'my-avy-action-yank-whole-line
+      (alist-get ?\C-w avy-dispatch-alist) 'my-avy-action-kill-whole-line
       (alist-get ?\C-e avy-dispatch-alist) 'my-avy-action-goto-end-of-line
   )
   )
@@ -1130,22 +1376,21 @@ C-e: jump to end of line
 (define-key yas-minor-mode-map (kbd "TAB") nil)
 (define-key yas-minor-mode-map (kbd "C-~") yas-maybe-expand)
 
-(global-set-key (kbd "C-S-f") 'counsel-recentf)
-(global-set-key (kbd "C-c f") 'counsel-recentf)
+;; (global-set-key (kbd "C-S-f") 'counsel-recentf)
+;; (global-set-key (kbd "C-c f") 'counsel-recentf)
+(global-set-key (kbd "C-S-f") 'consult-recent-file)
 
 (defun my-recentf-open-other-window ()
   (interactive)
   (split-window-right)
   (windmove-right nil)
-  (counsel-recentf)
+  ;; (counsel-recentf)
+  (consult-recent-file)
   (windmove-left nil) (setq register-preview-delay 0.5
         register-preview-function #'consult-register-format)
 )
 (global-set-key (kbd "C-x 4 C-S-f") 'my-recentf-open-other-window)
 
-(use-package consult
-  :hook (completion-list-mode . consult-preview-at-point-mode)
-  )
 
 ;; (straight-use-package 'eglot-booster)
 ;; (straight-use-package '(eglot-booster :type git :host github :repo "joaotavora/eglot-booster"))
@@ -1156,42 +1401,11 @@ C-e: jump to end of line
 
 
 
-;; (use-package corfu
-;;   ;; Optional customizations
-;;   :custom
-;;   ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-;;   (corfu-auto t)                 ;; Enable auto completion
-;;   ;; (corfu-separator ?\s)          ;; Orderless field separator
-;;   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-;;   ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-;;   ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-;;   ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
-;;   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-;;   ;; (corfu-scroll-margin 5)        ;; Use scroll margin
-
-;;   ;; Enable Corfu only for certain modes.
-;;   :hook ((prog-mode . corfu-mode)
-;;          (shell-mode . corfu-mode)
-;;          (eshell-mode . corfu-mode))
-
-;;   ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
-;;   ;; be used globally (M-/).  See also the customization variable
-;;   ;; `global-corfu-modes' to exclude certain modes.
-;;   :init
-;;   (global-corfu-mode))
-
 
 
 ;; Had to download eglot-lsp-booster from here first:
 ;; https://github.com/blahgeek/emacs-lsp-booster?tab=readme-ov-file#obtain-or-build-emacs-lsp-booster
 ;; Then "mv emacs-lsp-booster ~/.local/bin/"
-;; (use-package eglot-booster
-;;   :ensure t
-;;   :straight (:type git :host github :repo "jdtsmith/eglot-booster")
-;;   :after eglot
-;;   :config
-;;   (eglot-booster-mode))
-
 (use-package eglot-booster
   :ensure t
   :straight (:type git :host github :repo "joaotavora/eglot-booster")
@@ -1233,10 +1447,79 @@ C-e: jump to end of line
 
 (require 'uniquify) (setq uniquify-buffer-name-style 'forward)
 
-(use-package projectile
-  :diminish projectile-mode
-  :config (projectile-mode)
-  :custom ((projectile-completion-system 'ivy)))
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+;; (use-package projectile
+;;   :diminish projectile-mode
+;;   :config (projectile-mode)
+;;   :custom ((projectile-completion-system 'ivy)))
+;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 
+
+(global-hl-line-mode t)  ;; highlight line
+
+
+(defvar +vertico-transform-functions nil)
+
+(cl-defmethod vertico--format-candidate :around
+  (cand prefix suffix index start &context ((not +vertico-transform-functions) null))
+  (dolist (fun (ensure-list +vertico-transform-functions))
+    (setq cand (funcall fun cand)))
+  (cl-call-next-method cand prefix suffix index start))
+
+(defun +vertico-highlight-directory (file)
+  "If FILE ends with a slash, highlight it as a directory."
+  (if (string-suffix-p "/" file)
+      (propertize file 'face 'marginalia-file-priv-dir) ; or face 'dired-directory
+    file))
+
+;; function to highlight enabled modes similar to counsel-M-x
+(defun +vertico-highlight-enabled-mode (cmd)
+  "If MODE is enabled, highlight it as font-lock-constant-face."
+  (let ((sym (intern cmd)))
+    (if (or (eq sym major-mode)
+            (and
+             (memq sym minor-mode-list)
+             (boundp sym)))
+      (propertize cmd 'face 'font-lock-constant-face)
+      cmd)))
+
+;; add-to-list works if 'file isn't already in the alist
+;; setq can be used but will overwrite all existing values
+(add-to-list 'vertico-multiform-categories
+             '(file
+               ;; this is also defined in the wiki, uncomment if used
+               ;; (vertico-sort-function . sort-directories-first)
+               (+vertico-transform-functions . +vertico-highlight-directory)))
+(add-to-list 'vertico-multiform-commands
+             '(execute-extended-command 
+               ;; reverse
+               (+vertico-transform-functions . +vertico-highlight-enabled-mode)))
+
+
+;; ;; https://github.com/minad/corfu/wiki :
+;; ;; Option 1: Specify explicitly to use Orderless for Eglot
+;; (setq completion-category-overrides '((eglot (styles orderless))
+;;                                       (eglot-capf (styles orderless))))
+
+;; ;; Option 2: Undo the Eglot modification of completion-category-defaults
+;; ;; (with-eval-after-load 'eglot
+;;    ;; (setq completion-category-defaults nil))
+
+;; ;; Enable cache busting, depending on if your server returns
+;; ;; sufficiently many candidates in the first place.
+;; (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
+
+
+(desktop-save-mode 1)
+
+
+
+;; Optionally:
+;; (setq nerd-icons-corfu-mapping
+;;       '((array :style "cod" :icon "symbol_array" :face font-lock-type-face)
+;;         (boolean :style "cod" :icon "symbol_boolean" :face font-lock-builtin-face)
+;;         ;; ...
+;;         (t :style "cod" :icon "code" :face font-lock-warning-face)))
+;;         ;; Remember to add an entry for `t', the library uses that as default.
+
+;; The Custom interface is also supported for tuning the variable above.
 

@@ -421,15 +421,58 @@
 ;;------------------------------CONSULT------------------------------
 (use-package consult
   :hook (completion-list-mode . consult-preview-at-point-mode)
-  :bind (
-	 ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-	 ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
- 	 ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-	 ("M-g f" . consult-flymake)
-	 ("M-g o" . consult-outline)
-	 ("M-g r" . consult-ripgrep)
-	 ("M-s" . consult-line)
-	 )
+  :bind (;; C-c bindings in `mode-specific-map'
+         ("C-c M-x" . consult-mode-command)
+         ("C-c h" . consult-history)
+         ("C-c k" . consult-kmacro)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
+         ;; C-x bindings in `ctl-x-map'
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ;; M-g bindings in `goto-map'
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings in `search-map'
+         ("M-s d" . consult-find)                  ;; Alternative: consult-fd
+         ("M-s c" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
   :init
   (setq register-preview-delay 0.5
         register-preview-function #'consult-register-format)
@@ -657,6 +700,7 @@
   (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
 (use-package nerd-icons-dired
+  :diminish
   :hook
   (dired-mode . nerd-icons-dired-mode))
 
@@ -1113,6 +1157,9 @@
 
 (global-set-key [remap zap-to-char] 'zap-up-to-char)
 
+
+(define-key dired-mode-map (kbd "C-c w") 'wdired-change-to-wdired-mode)
+
 ;; C-w to kill a line
 ;; M-w to copy a line
 (use-package whole-line-or-region
@@ -1187,6 +1234,15 @@ C-e: jump to end of line
     (move-end-of-line nil)
     ))
 
+(defun my-avy-action-goto-beginning-of-line (pt)
+  "Goto PT."
+  (let ((frame (window-frame (selected-window))))
+    (unless (equal frame (selected-frame))
+      (select-frame-set-input-focus frame)
+      (raise-frame frame))
+    (goto-char pt)
+    (move-beginning-of-line nil)
+    ))
 
 (use-package avy
   :bind (
@@ -1208,6 +1264,7 @@ C-e: jump to end of line
       (alist-get ?Y avy-dispatch-alist) 'my-avy-action-yank-whole-line
       (alist-get ?\C-w avy-dispatch-alist) 'my-avy-action-kill-whole-line
       (alist-get ?\C-e avy-dispatch-alist) 'my-avy-action-goto-end-of-line
+      (alist-get ?\C-a avy-dispatch-alist) 'my-avy-action-goto-beginning-of-line
   )
   )
 
@@ -1293,8 +1350,7 @@ C-e: jump to end of line
 (add-hook 'python-ts-mode-hook
           (lambda () (local-set-key (kbd "M-n") 'python-nav-forward-block)))
 
-(defun my-test ()
-  
+(defun my-test ()  
      (interactive)
      (set-mark-command nil)
      (python-nav-end-of-block)
@@ -1303,7 +1359,9 @@ C-e: jump to end of line
 ;; (global-set-key (kbd "M-n") '('set-mark-command 'my-end-of-par 'my-copy-comment-and-paste-region))
 
 ;; (global-set-key (kbd "C-S-a") 'back-to-indentation)
-(global-set-key (kbd "C-a") 'back-to-indentation)
+;; (global-set-key (kbd "C-a") 'back-to-indentation)
+;; (global-set-key (kbd "C-a") 'beginning-of-line)  ; default binding
+(key-chord-define-global "aa" 'back-to-indentation)
 
 ;; newline-without-break-of-line
 (defun newline-without-break-of-line ()
@@ -1323,25 +1381,13 @@ C-e: jump to end of line
 (global-set-key (kbd "M-[") 'backward-paragraph)
 (global-set-key (kbd "M-]") 'forward-paragraph)
 
-(global-set-key (kbd "C-S-s") 'isearch-forward-thing-at-point)
-
-;; ;define a kbd macro to copy a line
-;; (defun my-copy-line () (interactive)
-;;        (kill-ring-save (line-beginning-position) (line-end-position)))
-;; (global-set-key (kbd "C-S-c") 'my-copy-line) 
+;; (global-set-key (kbd "C-S-s") 'isearch-forward-thing-at-point)
 
 (defun move-cursor-to-top ()
   "Move the display so that the cursor is at the top."
   (interactive)
   (recenter 0))
 (global-set-key (kbd "C-c t") 'move-cursor-to-top)
-
-;define a kbd macro to insert new line below and go to it
-(defun my-insert-line () (interactive) (move-end-of-line 1) (newline))
-(global-set-key (kbd "C-S-n") 'my-insert-line)
-
-(global-set-key (kbd "C-S-k") 'kill-whole-line)
-(global-set-key (kbd "C-S-<Backspace>") 'kill-whole-line) 
 
 ;C-x C-r to revert-buffer
 (global-set-key [(control x) (control r)] 'revert-buffer)
@@ -1363,19 +1409,6 @@ C-e: jump to end of line
   )
 (global-set-key (kbd "C-{") 'scroll-down-one-line)
 (global-set-key (kbd "<home>") 'scroll-down-one-line)
-
-; copy current line, comment it out, and paste it to next line
-(defun my-copy-comment-paste ()
-  (interactive)
-  (save-excursion
-    (let ((current-line (thing-at-point 'line t)))
-      (goto-char (line-beginning-position))
-      (insert current-line)
-      (comment-region (line-beginning-position 0)
-                      (line-end-position 0)))))
-;; (global-set-key (kbd "C-S-m") 'my-copy-comment-paste) 
-;; (global-set-key (kbd "M-M") 'my-copy-comment-paste)
-(global-set-key (kbd "C-:") 'my-copy-comment-paste)
 
 (global-set-key (kbd "M-m") 'duplicate-dwim) ;; duplicate a line or region
 
@@ -1526,9 +1559,23 @@ C-e: jump to end of line
 ;; (desktop-save-mode 1)
   
 ;;;; `ediff'
-  (setq ediff-keep-variants nil)
-  (setq ediff-make-buffers-readonly-at-startup nil)
-  (setq ediff-merge-revisions-with-ancestor t)
-  (setq ediff-show-clashes-only t)
-  (setq ediff-split-window-function 'split-window-horizontally)
-  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+(setq ediff-keep-variants nil)
+(setq ediff-make-buffers-readonly-at-startup nil)
+(setq ediff-merge-revisions-with-ancestor t)
+(setq ediff-show-clashes-only t)
+(setq ediff-split-window-function 'split-window-horizontally)
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+
+(defun gpt-comment-copy-yank-line-or-region ()
+  "Copy the current line or region, comment it out, and yank below."
+  (interactive)
+  (let ((beg (if (region-active-p) (region-beginning) (line-beginning-position)))
+        (end (if (region-active-p) (region-end) (line-end-position))))
+    (copy-region-as-kill beg end)
+    (comment-region beg end)
+    (move-end-of-line 1)
+    (newline)
+    (yank)))
+
+
+(global-set-key (kbd "C-M-;") 'gpt-comment-copy-yank-line-or-region)

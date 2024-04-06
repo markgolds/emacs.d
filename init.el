@@ -604,12 +604,14 @@
 
 
 
-(use-package all-the-icons
-  :if (display-graphic-p))
-;; M-x all-the-icons-install-fonts    ;; do this once after install
-(use-package all-the-icons-dired
-  :diminish
-  )
+;; (use-package all-the-icons
+;;   :if (display-graphic-p))
+
+;; ;; M-x all-the-icons-install-fonts    ;; do this once after install
+;; (use-package all-the-icons-dired
+;;   :diminish
+;;   )
+
 (use-package dired-open)
 (use-package peep-dired
   :config
@@ -632,13 +634,13 @@
 ;;   )
 
 
-(add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+;; (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 
-(use-package all-the-icons-completion
-  :after (marginalia all-the-icons)
-  :hook (marginalia-mode . all-the-icons-completion-marginalia-setup)
-  :init
-  (all-the-icons-completion-mode))
+;; (use-package all-the-icons-completion
+;;   :after (marginalia all-the-icons)
+;;   :hook (marginalia-mode . all-the-icons-completion-marginalia-setup)
+;;   :init
+;;   (all-the-icons-completion-mode))
 
 (use-package nerd-icons
   :custom
@@ -646,8 +648,20 @@
   ;; "Symbols Nerd Font Mono" is the default and is recommended
   ;; but you can use any other Nerd Font if you want
   (nerd-icons-font-family "Symbols Nerd Font Mono")
-  ;; (nerd-icons-font-family "EnvyCodeR Nerd Font Mono")
   )
+
+(use-package nerd-icons-completion
+  :after marginalia
+  :config
+  (nerd-icons-completion-mode)
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+
+(use-package nerd-icons-dired
+  :hook
+  (dired-mode . nerd-icons-dired-mode))
+
+(use-package nerd-icons-ibuffer
+  :hook (ibuffer-mode . nerd-icons-ibuffer-mode))
 
 (use-package nerd-icons-corfu)
 

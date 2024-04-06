@@ -12,7 +12,7 @@ git clone --depth 1 https://git.sr.ht/~protesilaos/iosevka-comfy
 sudo fc-cache -v
 ```
 
-* Install icons:
+* Icons:
 
 Download Symbols Nerd Font: https://www.nerdfonts.com/font-downloads
 

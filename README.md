@@ -1,10 +1,10 @@
-Initial Setup:
+# Initial Setup:
 
-* Install ripgrep: 
+## Install ripgrep: 
 
 `sudo dnf install ripgrep`
 
-* Install fonts: 
+## Install fonts: 
 
 ```
 cd ~/.local/share/fonts/
@@ -12,8 +12,15 @@ git clone --depth 1 https://git.sr.ht/~protesilaos/iosevka-comfy
 sudo fc-cache -v
 ```
 
-* Icons:
+## Icons:
 
 Download Symbols Nerd Font: https://www.nerdfonts.com/font-downloads
 
 
+## Python
+
+Inside a virtualenv:
+
+```
+pip install pyright ruff debugpy isort
+```

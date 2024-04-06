@@ -4,7 +4,7 @@
 
 `sudo dnf install ripgrep`
 
-## Install fonts: 
+## Fonts: 
 
 ```
 cd ~/.local/share/fonts/

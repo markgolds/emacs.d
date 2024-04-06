@@ -56,7 +56,6 @@
 
 (winner-mode 1)
 ;; Setup straight --------------------------------------------------
-;; (setq package-enable-at-startup nil)
 
 (setq straight-repository-branch "develop")
 
@@ -85,11 +84,6 @@
 (use-package git)
 ;; End straight.el
 
-;; C-w to kill a line
-(use-package whole-line-or-region
-  :diminish whole-line-or-region-local-mode
-  :config (whole-line-or-region-global-mode)
-  )
 
 ;;;****************************** ORG STUFF  ******************************
 
@@ -341,6 +335,8 @@
   (vertico-mode)
   (vertico-indexed-mode)
   (vertico-multiform-mode)
+  ;; ~/ will delete prev dir:
+  (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)  
   :bind
   (:map vertico-map
    ;; ("<tab>" #'vertico-insert) ; Set manually otherwise setting `vertico-quick-insert' overrides this
@@ -436,12 +432,15 @@
  	 ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
 	 ("M-g f" . consult-flymake)
 	 ("M-g o" . consult-outline)
+	 ("M-g r" . consult-ripgrep)
 	 ("M-s" . consult-line)
 	 )
   :init
   (setq register-preview-delay 0.5
         register-preview-function #'consult-register-format)
   )
+
+(use-package key-chord)
 (key-chord-define-global "pf" 'consult-project-buffer)
 
 (use-package orderless
@@ -449,6 +448,52 @@
   :custom
   (completion-styles '(orderless basic))
   (completion-category-overrides '((file (styles basic partial-completion)))))
+
+(use-package embark
+  :ensure t
+  :bind
+  (("C-." . embark-act)         ;; pick some comfortable binding
+   ("C-;" . embark-dwim)        ;; good alternative: M-.
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+  :init
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+  ;; keep embarking after killing buffer, otherwise default behaviour
+  (setq embark-quit-after-action '((kill-buffer . nil) (t . t)))
+  ;; Show the Embark target at point via Eldoc. You may adjust the
+  ;; Eldoc strategy, if you want to see the documentation from
+  ;; multiple providers. Beware that using this can be a little
+  ;; jarring since the message shown in the minibuffer can be more
+  ;; than one line, causing the modeline to move up and down:
+  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+  :config
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none))))
+  ;; Embark to choose which window to open buffer/file in
+  (define-key embark-file-map     (kbd "o") (my/embark-ace-action find-file))
+  (define-key embark-buffer-map   (kbd "o") (my/embark-ace-action switch-to-buffer))
+  (define-key embark-bookmark-map (kbd "o") (my/embark-ace-action bookmark-jump))
+  )
+
+;; Consult users will also want the embark-consult package.
+(use-package embark-consult
+  :ensure t ; only need to install it, embark loads it after consult if found
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
+
+(eval-when-compile
+  (defmacro my/embark-ace-action (fn)
+    `(defun ,(intern (concat "my/embark-ace-" (symbol-name fn))) ()
+      (interactive)
+      (with-demoted-errors "%s"
+       (require 'ace-window)
+       (let ((aw-dispatch-always t))
+        (aw-switch-to-window (aw-select nil))
+        (call-interactively (symbol-function ',fn)))))))
 
 
 (use-package saveplace
@@ -514,48 +559,47 @@
         (corfu-insert-separator)))))
 
 ;; ;; Add extensions
-;; (use-package cape
-;;   ;; Bind dedicated completion commands
-;;   ;; Alternative prefix keys: C-c p, M-p, M-+, ...
-;;   :bind (("C-c p p" . completion-at-point) ;; capf
-;;          ("C-c p t" . complete-tag)        ;; etags
-;;          ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
-;;          ("C-c p h" . cape-history)
-;;          ("C-c p f" . cape-file)
-;;          ("C-c p k" . cape-keyword)
-;;          ("C-c p s" . cape-elisp-symbol)
-;;          ("C-c p e" . cape-elisp-block)
-;;          ("C-c p a" . cape-abbrev)
-;;          ("C-c p l" . cape-line)
-;;          ("C-c p w" . cape-dict)
-;;          ("C-c p :" . cape-emoji)
-;;          ("C-c p \\" . cape-tex)
-;;          ("C-c p _" . cape-tex)
-;;          ("C-c p ^" . cape-tex)
-;;          ("C-c p &" . cape-sgml)
-;;          ("C-c p r" . cape-rfc1345))
-;;   :init
-;;   ;; Add to the global default value of `completion-at-point-functions' which is
-;;   ;; used by `completion-at-point'.  The order of the functions matters, the
-;;   ;; first function returning a result wins.  Note that the list of buffer-local
-;;   ;; completion functions takes precedence over the global list.
-;;   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-;;   (add-to-list 'completion-at-point-functions #'cape-file)
-;;   (add-to-list 'completion-at-point-functions #'cape-elisp-block)
-;;   ;;(add-to-list 'completion-at-point-functions #'cape-history)
-;;   ;;(add-to-list 'completion-at-point-functions #'cape-keyword)
-;;   ;;(add-to-list 'completion-at-point-functions #'cape-tex)
-;;   ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
-;;   ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
-;;   ;;(add-to-list 'completion-at-point-functions #'cape-abbrev)
-;;   ;;(add-to-list 'completion-at-point-functions #'cape-dict)
-;;   ;;(add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
-;;   ;;(add-to-list 'completion-at-point-functions #'cape-line)
-;; )
-
+(use-package cape
+  ;; Bind dedicated completion commands
+  ;; Alternative prefix keys: C-c p, M-p, M-+, ...
+  :bind (("C-c p p" . completion-at-point) ;; capf
+         ("C-c p t" . complete-tag)        ;; etags
+         ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
+         ("C-c p h" . cape-history)
+         ("C-c p f" . cape-file)
+         ("C-c p k" . cape-keyword)
+         ("C-c p s" . cape-elisp-symbol)
+         ("C-c p e" . cape-elisp-block)
+         ("C-c p a" . cape-abbrev)
+         ("C-c p l" . cape-line)
+         ("C-c p w" . cape-dict)
+         ("C-c p :" . cape-emoji)
+         ("C-c p \\" . cape-tex)
+         ("C-c p _" . cape-tex)
+         ("C-c p ^" . cape-tex)
+         ("C-c p &" . cape-sgml)
+         ("C-c p r" . cape-rfc1345))
+  :init
+  ;; Add to the global default value of `completion-at-point-functions' which is
+  ;; used by `completion-at-point'.  The order of the functions matters, the
+  ;; first function returning a result wins.  Note that the list of buffer-local
+  ;; completion functions takes precedence over the global list.
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
+  ;;(add-to-list 'completion-at-point-functions #'cape-history)
+  ;;(add-to-list 'completion-at-point-functions #'cape-keyword)
+  ;;(add-to-list 'completion-at-point-functions #'cape-tex)
+  ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
+  ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
+  ;;(add-to-list 'completion-at-point-functions #'cape-abbrev)
+  ;;(add-to-list 'completion-at-point-functions #'cape-dict)
+  ;;(add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
+  ;;(add-to-list 'completion-at-point-functions #'cape-line)
+)
 
 (defun orderless-fast-dispatch (word index total)
-  (and (= index 0) (= total 1) (length< word 4)
+  (and (= index 0) (= total 1) (length< word 2)
        (cons 'orderless-literal-prefix word)))
 
 (orderless-define-completion-style orderless-fast
@@ -568,9 +612,33 @@
 (use-package all-the-icons
   :if (display-graphic-p))
 ;; M-x all-the-icons-install-fonts    ;; do this once after install
-(use-package all-the-icons-dired)
+(use-package all-the-icons-dired
+  :diminish
+  )
 (use-package dired-open)
-(use-package peep-dired)
+(use-package peep-dired
+  :config
+  (setq peep-dired-cleanup-on-disable t)
+  (setq peep-dired-ignored-extensions '("mkv" "iso" "mp4", "gz", "zip"))
+  )
+
+;; (defun my-dired-preview-to-the-right ()
+;;   "My preferred `dired-preview-display-action-alist-function'."
+;;   '((display-buffer-in-side-window)
+;;     (side . right)
+;;     (width . 0.5)
+;;     ))
+;; (use-package dired-preview
+;;   :config
+;;   ;; (setq dired-preview-display-action-alist-function #'my-dired-preview-to-the-right)
+;;   (setq dired-preview-delay 0.1)
+;;   (setq dired-preview-ignored-extensions-regexp
+;; 	"\\(mkv\\|webm\\|mp4\\|mp3\\|ogg\\|m4a\\|flac\\|wav\\|gz\\|zst\\|tar\\|xz\\|rar\\|zip\\|iso\\|epub\\)")
+;;   )
+
+
+
+
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 
 (use-package all-the-icons-completion
@@ -617,6 +685,16 @@
 (add-hook 'csv-mode-hook 'csv-highlight)
 (add-hook 'csv-mode-hook 'csv-align-mode)
 (add-hook 'csv-mode-hook '(lambda () (interactive) (toggle-truncate-lines nil)))
+
+
+(use-package ace-window
+  :bind (("M-o" . ace-window))
+  :config
+  (setq aw-dispatch-always t)
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+  )
+
+
 ;;;****************************** PYTHON ******************************
 
 (use-package pyvenv
@@ -664,6 +742,26 @@
 ;;   (add-to-list 'eglot-server-programs
 ;;                '(python-mode . ("ruff-lsp"))))
 
+;; settings: https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings
+(use-package dape
+  :after eglot
+  :config
+  ;; (setq dape-buffer-window-arrangement 'right)
+  ;; (setq dape-buffer-window-arrangement 'gud)
+  ;; (setq dape-buffer-window-arrangement 'left)
+  ;; (setq dape-info-buffer-window-groups nil)  ;; only repl, remove for all windows
+  (add-to-list 'dape-configs
+	       `(debugpy
+		 modes (python-ts-mode python-mode)
+		 command "python"
+		 command-args ("-m" "debugpy.adapter")
+		 :type "executable"
+		 :request "launch"
+		 :cwd dape-cwd-fn
+		 :program dape-buffer-default
+		 :redirectOutput t  ; fixes double prints?
+		 )
+	       ))
 
 ;; (use-package eglot
 ;;   :preface
@@ -724,6 +822,11 @@
 ;; 				       ))))))
 
 
+
+;; (use-package flymake-ruff
+;;   :straight (flymake-ruff :type git :host nil :repo "https://github.com/erickgnavar/flymake-ruff")
+;;   :hook ((eglot-managed-mode . flymake-ruff-load))
+;;   )
 
 (use-package flymake-ruff
   :straight (flymake-ruff :type git :host nil :repo "https://github.com/erickgnavar/flymake-ruff")
@@ -842,26 +945,7 @@
 ;; (setq realgud--ipdb-command-name "ipdb3")  
 ;;  )
 
-;; settings: https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings
-(use-package dape
-  :after eglot
-  :config
-  (setq dape-buffer-window-arrangement 'right)
-  ;; (setq dape-buffer-window-arrangement 'gud)
-  ;; (setq dape-buffer-window-arrangement 'left)
-  ;; (setq dape-info-buffer-window-groups nil)  ;; only repl, remove for all windows
-  (add-to-list 'dape-configs
-	       `(debugpy
-		 modes (python-ts-mode python-mode)
-		 command "python"
-		 command-args ("-m" "debugpy.adapter")
-		 :type "executable"
-		 :request "launch"
-		 :cwd dape-cwd-fn
-		 :program dape-buffer-default
-		 :redirectOutput t  ; fixes double prints?
-		 )
-	       ))
+
 ;; (use-package doom-themes
 ;;   :config
 ;;   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
@@ -912,7 +996,7 @@
  '((emacs-lisp . t)
    ;; (julia . t)
    (python . t)
-   (jupyter . t)
+;;   (jupyter . t)
    ))
 
 ;; (defun org-edit-src-code nil)
@@ -967,8 +1051,8 @@
 ;; (add-to-list 'code-cells-eval-region-commands '(jupyter-repl-interaction-mode . gm/jupyter-eval-region))
 
 ;; (use-package jupyter :defer t :custom (jupyter-repl-echo-eval-p t))
- ;; (setq python-shell-interpreter "ipython"
-        ;; python-shell-interpreter-args "-i --simple-prompt --InteractiveShell.display_page=True")
+ (setq python-shell-interpreter "ipython"
+        python-shell-interpreter-args "-i --simple-prompt --InteractiveShell.display_page=True")
 
 (use-package elfeed
   :config
@@ -1103,12 +1187,23 @@
 
 ;;;****************************** MY KEY BINDINGS ******************************
 
+(global-set-key [remap zap-to-char] 'zap-up-to-char)
+
+;; C-w to kill a line
+;; M-w to copy a line
+(use-package whole-line-or-region
+  :diminish whole-line-or-region-local-mode
+  :config (whole-line-or-region-global-mode)
+  )
+
+
+(use-package hydra)
 (defhydra hydra-zoom ()
   "
  Avy (pq)            ^Mark^             ^Navigation^                        ^Manips^                         ^Python^    
 ^^^^^^---------------------------------------------------------------------------------------------------------------------------   --------------------------------
 C-y: yank           _r_: set reg       ^M-[^: back-paragraph           C-S-k: kill line                     _n_: next error        | C-x C-i: init.el               |
-M-w: copy           _j_: jump reg      ^M-]^: forward-paragraph        C-S-m: copy-comment-paste            _p_: prev error        |     C-t: transpose char (typo) |
+M-w: copy           _j_: jump reg      ^M-]^: forward-paragraph        C-S-m: my-copy-comment-paste            _p_: prev error        |     C-t: transpose char (typo) |
 C-k: kill-move    ^M-h^: paragraph       _t_: cursor top               C-S-c: copy-line                   ^C-~^: yasnippet         |   C-S-t: transpose frames      |
 C-t: kill-stay      ^ ^              _<end>_: scroll other up      C-<enter>: newline go                  ^M-n^: next indent lvl   |   C-S-f: find recent files     |
 C-m: mark word      ^ ^             _<home>_: scroll other down          C-;: copy-comment-paste-region   ^M-p^: prev indent lvl   |   C-S-r: avy copy region       |
@@ -1239,7 +1334,9 @@ C-e: jump to end of line
       ;; (newline-and-indent)
       (message "Region copied, commented, and pasted."))))
 
-(global-set-key (kbd "C-;") 'my-copy-comment-and-paste-region)
+;; (global-set-key (kbd "C-;") 'my-copy-comment-and-paste-region)  ;; trouble in gnome
+(global-set-key (kbd "M-C-;") 'my-copy-comment-and-paste-region)
+;; (key-chord-define-global "\'\'" 'my-copy-comment-and-paste-region)
 
 (defun my-end-of-par ()
   "Move point to the end of the current paragraph."
@@ -1304,10 +1401,10 @@ C-e: jump to end of line
 
 (global-set-key (kbd "C-S-s") 'isearch-forward-thing-at-point)
 
-;define a kbd macro to copy a line
-(defun my-copy-line () (interactive)
-       (kill-ring-save (line-beginning-position) (line-end-position)))
-(global-set-key (kbd "C-S-c") 'my-copy-line) 
+;; ;define a kbd macro to copy a line
+;; (defun my-copy-line () (interactive)
+;;        (kill-ring-save (line-beginning-position) (line-end-position)))
+;; (global-set-key (kbd "C-S-c") 'my-copy-line) 
 
 (defun move-cursor-to-top ()
   "Move the display so that the cursor is at the top."
@@ -1344,7 +1441,7 @@ C-e: jump to end of line
 (global-set-key (kbd "<home>") 'scroll-down-one-line)
 
 ; copy current line, comment it out, and paste it to next line
-(defun copy-comment-paste ()
+(defun my-copy-comment-paste ()
   (interactive)
   (save-excursion
     (let ((current-line (thing-at-point 'line t)))
@@ -1352,10 +1449,15 @@ C-e: jump to end of line
       (insert current-line)
       (comment-region (line-beginning-position 0)
                       (line-end-position 0)))))
-(global-set-key (kbd "C-S-m") 'copy-comment-paste) 
+;; (global-set-key (kbd "C-S-m") 'my-copy-comment-paste) 
+;; (global-set-key (kbd "M-M") 'my-copy-comment-paste)
+(global-set-key (kbd "C-:") 'my-copy-comment-paste)
+
+(global-set-key (kbd "M-m") 'duplicate-dwim) ;; duplicate a line or region
+
 
 ;commenting
-;; Original idea from
+;; original idea from
 ;; http://www.opensubscriber.com/message/emacs-devel@gnu.org/10971693.html
 (defun comment-dwim-line (&optional arg)
   "Replacement for the comment-dwim command.
@@ -1390,18 +1492,6 @@ C-e: jump to end of line
         register-preview-function #'consult-register-format)
 )
 (global-set-key (kbd "C-x 4 C-S-f") 'my-recentf-open-other-window)
-
-
-;; (straight-use-package 'eglot-booster)
-;; (straight-use-package '(eglot-booster :type git :host github :repo "joaotavora/eglot-booster"))
-
-;; (use-package eglot-booster
-;; 	:after eglot
-;; 	:config	(eglot-booster-mode))
-
-
-
-
 
 ;; Had to download eglot-lsp-booster from here first:
 ;; https://github.com/blahgeek/emacs-lsp-booster?tab=readme-ov-file#obtain-or-build-emacs-lsp-booster
@@ -1455,7 +1545,7 @@ C-e: jump to end of line
 
 
 (global-hl-line-mode t)  ;; highlight line
-
+;; (global-hl-line-mode 0)
 
 (defvar +vertico-transform-functions nil)
 
@@ -1509,17 +1599,12 @@ C-e: jump to end of line
 ;; (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
 
 
-(desktop-save-mode 1)
-
-
-
-;; Optionally:
-;; (setq nerd-icons-corfu-mapping
-;;       '((array :style "cod" :icon "symbol_array" :face font-lock-type-face)
-;;         (boolean :style "cod" :icon "symbol_boolean" :face font-lock-builtin-face)
-;;         ;; ...
-;;         (t :style "cod" :icon "code" :face font-lock-warning-face)))
-;;         ;; Remember to add an entry for `t', the library uses that as default.
-
-;; The Custom interface is also supported for tuning the variable above.
-
+;; (desktop-save-mode 1)
+  
+;;;; `ediff'
+  (setq ediff-keep-variants nil)
+  (setq ediff-make-buffers-readonly-at-startup nil)
+  (setq ediff-merge-revisions-with-ancestor t)
+  (setq ediff-show-clashes-only t)
+  (setq ediff-split-window-function 'split-window-horizontally)
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain)

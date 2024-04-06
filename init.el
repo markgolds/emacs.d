@@ -250,24 +250,16 @@
         ))
 
 ;; god-mode
-(use-package god-mode)
-(global-set-key (kbd "<escape>") 'god-mode-all)
-(setq god-exempt-major-modes nil)
-(setq god-exempt-predicates nil)
-(defun my-update-cursor ()
-  (setq cursor-type (if (or god-local-mode buffer-read-only)
-                        'box
-                      'bar)))
-(add-hook 'god-mode-enabled-hook 'my-update-cursor)
-(add-hook 'god-mode-disabled-hook 'my-update-cursor)
-(defun c/god-mode-update-cursor ()
-  (let ((limited-colors-p (> 257 (length (defined-colors)))))
-    (cond (god-local-mode (progn
-                            (set-face-background 'mode-line (if limited-colors-p "white" "#e9e2cb"))
-                            (set-face-background 'mode-line-inactive (if limited-colors-p "white" "#e9e2cb"))))
-          (t (progn
-               (set-face-background 'mode-line (if limited-colors-p "black" "#0a2832"))
-               (set-face-background 'mode-line-inactive (if limited-colors-p "black" "#0a2832")))))))
+(defun my-god-mode-update-cursor-type ()
+  (setq cursor-type (if (or god-local-mode buffer-read-only) 'bar 'box)))
+(use-package god-mode
+  :config
+  (global-set-key (kbd "<escape>") 'god-mode-all)
+  (setq god-exempt-major-modes nil)
+  (setq god-exempt-predicates nil)
+  (custom-set-faces
+   '(god-mode-lighter ((t (:inherit error)))))
+  (add-hook 'post-command-hook #'my-god-mode-update-cursor-type))
 ;; end god-mode
 
 (use-package drag-stuff
@@ -1092,12 +1084,12 @@
   :bind
   ("<f5>" . ef-themes-toggle)
   :custom
-  (ef-themes-to-toggle '(ef-elea-dark ef-day))
+  (ef-themes-to-toggle '(ef-elea-dark ef-spring))
   ;; (ef-themes-variable-pitch-ui t)
   (ef-themes-mixed-fonts t)
   (ef-themes-headings '((0 1.4) (1 1.3) (2 1.2) (3 1.1)))
   :init
-  (load-theme (if (display-graphic-p) 'ef-day 'ef-symbiosis) t))
+  (load-theme (if (display-graphic-p) 'ef-spring 'ef-symbiosis) t))
 
 
 ;; (use-package modus-themes

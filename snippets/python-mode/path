@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: path
+# key: path
+# group : general
+# --
+from pathlib import Path
+$0

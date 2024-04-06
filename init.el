@@ -530,7 +530,7 @@
 
 (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
 
-;; SPC as separator
+;; SPC as separator  --> So M-SPC for orderless autocomplete
 (setq corfu-separator 32)
 
 ;; highly recommanded to use corfu-separator with "32" (space)
@@ -630,8 +630,6 @@
 ;;   (setq dired-preview-ignored-extensions-regexp
 ;; 	"\\(mkv\\|webm\\|mp4\\|mp3\\|ogg\\|m4a\\|flac\\|wav\\|gz\\|zst\\|tar\\|xz\\|rar\\|zip\\|iso\\|epub\\)")
 ;;   )
-
-
 
 
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
@@ -758,70 +756,6 @@
 		 )
 	       ))
 
-;; (use-package eglot
-;;   :preface
-;;   :defer t
-;;   :bind (:map eglot-mode-map
-;;               ;; ("C-c C-d" . eldoc)
-;;               ("C-c C-e" . eglot-rename)
-;;               ("C-c C-o" . python-sort-imports)
-;;               ("C-c C-f" . eglot-format-buffer))
-;;   :hook ((python-ts-mode . eglot-ensure)
-;;          ;; (python-ts-mode . flyspell-prog-mode)
-;;          ;; (python-ts-mode . superword-mode)
-;;          (python-ts-mode . hs-minor-mode)
-;;          ;; (python-ts-mode . (lambda () (set-fill-column 88)))
-;; 	 ;; (python-ts-mode . (lambda () (diminish 'hs-minor-mode)))
-;; 	 ;; (eglot-managed-mode . mp-eglot-eldoc)
-;; 	 )
-;;   :custom
-;;   (fset #'jsonrpc--log-event #'ignore)
-;;   (eglot-events-buffer-size 0)
-;;   ;; :config
-;;   ;; (add-to-list 'eglot-server-programs '(python-mode . ("pyright-langserver" "--stdio")))
-;;   ;; (add-to-list 'eglot-server-programs '(python-mode . ("ruff-lsp" "-stdio" "--linters" "pyflakes,mccabe,pycodestyle,pydocstyle,bandit,black,isort")))
-;;   )
-
-;; (use-package eglot
-;;   :preface
-;;   :defer t
-;;   :bind (:map eglot-mode-map
-;;               ;; ("C-c C-d" . eldoc)
-;;               ("C-c C-e" . eglot-rename)
-;;               ("C-c C-o" . python-sort-imports)
-;;               ("C-c C-f" . eglot-format-buffer))
-;;   :hook ((python-mode . eglot-ensure)
-;;          ;; (python-mode . flyspell-prog-mode)
-;;          ;; (python-mode . superword-mode)
-;;          (python-mode . hs-minor-mode)
-;;          ;; (python-mode . (lambda () (set-fill-column 88))))
-;; 	 )
-;;   :config
-;;   (setq-default eglot-workspace-configuration
-;;                 '((:pylsp . (:configurationSources ["flake8"]
-;;                              :plugins (
-;;                                        :pycodestyle (:enabled :json-false)
-;;                                        :mccabe (:enabled :json-false)
-;;                                        :pyflakes (:enabled :json-false)
-;;                                        ;; :flake8 (:enabled :json-false
-;;                                                 ;; :maxLineLength 88)
-;;                                        :ruff (:enabled t
-;;                                               :lineLength 88)
-;;                                        ;; :pydocstyle (:enabled t
-;;                                                     ;; :convention "numpy")
-;;                                        ;; :yapf (:enabled :json-false)
-;;                                        ;; :autopep8 (:enabled :json-false)
-;;                                        ;; :black (:enabled t
-;;                                        ;;         :line_length 88
-;;                                        ;;         :cache_config t)
-;; 				       ))))))
-
-
-
-;; (use-package flymake-ruff
-;;   :straight (flymake-ruff :type git :host nil :repo "https://github.com/erickgnavar/flymake-ruff")
-;;   :hook ((eglot-managed-mode . flymake-ruff-load))
-;;   )
 
 (use-package flymake-ruff
   :straight (flymake-ruff :type git :host nil :repo "https://github.com/erickgnavar/flymake-ruff")
@@ -831,16 +765,12 @@
 (use-package ruff-format
   :hook (eglot-managed-mode . ruff-format-on-save-mode))
 
-;; (use-package flymake-ruff
-;;   :ensure t
-;;   :hook (python-ts-mode . flymake-ruff-load))
-
 ;; This was originally use to not make double erros from Pyright/ruff
 ;; But it turns out that Pyright had it's on problem where it was sending double messages:
 ;; flymake-show-buffer-diagnostics:
     ;; 1  16 error    e-f-b    Pyright [reportUnusedImport]: Import "np" is not accessed
     ;; 1  16 note     e-f-b    Pyright: "np" is not accessed
- (defun my-fix-eglot-diagnostics (diags)
+(defun my-fix-eglot-diagnostics (diags)
   "Drop Pyright 'variable not accessed' notes from DIAGS."
   (list (seq-remove (lambda (d)
                       (and
@@ -850,7 +780,6 @@
 		       ))
                     (car diags))))
 (advice-add 'eglot--report-to-flymake :filter-args #'my-fix-eglot-diagnostics)
-;; (advice-remove 'eglot--report-to-flymake #'my-fix-eglot-diagnostics)
 
 (use-package eglot
   :preface
@@ -880,19 +809,6 @@
   ;; (add-to-list 'eglot-server-programs '(python-mode . ("pyright-langserver" "--stdio")))
   ;; (add-to-list 'eglot-server-programs '(python-mode . ("ruff-lsp" "-stdio" "--linters" "pyflakes,mccabe,pycodestyle,pydocstyle,bandit,black,isort")))
   )
-
-;; (use-package flymake-ruff
-;;   :ensure t
-;;   :hook ((python-mode . flymake-ruff-load)
-;;   (python-ts-mode . flymake-ruff-load)
-;; )
-;;   )
-
-;; (advice-add 'eglot--report-to-flymake :filter-args #'my-filter-eglot-diagnostics)
-
-
-;; (add-hook 'python-mode-hook #'flymake-ruff-load)
-;; (add-hook 'python-ts-mode-hook #'flymake-ruff-load)
 
 (use-package isortify
   :hook (python-ts-mode . isortify-mode))
@@ -1146,7 +1062,6 @@
 	   (hs-minor-mode nil "hideshow")
 	   (flyspell-mode nil "flyspell")
 	   (superword-mode nil "subword")
-	   ;; (yas-minor-mode nil "yasnippet")
 	   (isortify-mode nil "isortify")
 	   (auto-revert-mode nil "autorevert")
 	   (ruff-format-on-save-mode nil "ruff-format")

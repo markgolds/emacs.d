@@ -240,14 +240,17 @@
 
 (use-package yasnippet
   :diminish)
-;; (require 'yasnippet-snippets)
+
 (use-package yasnippet-snippets
-  :diminish)
-(yas-global-mode 1)
-(setq yas-snippet-dirs
-      '("~/.emacs.d/snippets"                 ;; personal snippets
-	"~/.emacs.d/elpa/yasnippet-snippets-20240221.1621/snippets"
-        ))
+  ;; :diminish yas-global-mode
+  :diminish yas-minor-mode
+  :init (yas-global-mode 1)
+  :config
+  (setq yas-snippet-dirs
+	'("~/.emacs.d/snippets"                 ;; personal snippets
+	  "~/.emacs.d/elpa/yasnippet-snippets-20240221.1621/snippets"
+          ))
+  )
 
 ;; god-mode
 (defun my-god-mode-update-cursor-type ()
@@ -1143,7 +1146,7 @@
 	   (hs-minor-mode nil "hideshow")
 	   (flyspell-mode nil "flyspell")
 	   (superword-mode nil "subword")
-	   (yas-minor-mode nil "yasnippet")
+	   ;; (yas-minor-mode nil "yasnippet")
 	   (isortify-mode nil "isortify")
 	   (auto-revert-mode nil "autorevert")
 	   (ruff-format-on-save-mode nil "ruff-format")

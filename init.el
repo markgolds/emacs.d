@@ -19,7 +19,7 @@
 ;; y or n is enough
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-; turon off externals
+					; turon off externals
 ;; Remove scrollbars, menu bars, and toolbars
 (when (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 (when (fboundp 'tool-bar-mode) (tool-bar-mode -1))
@@ -121,7 +121,7 @@
          :prepend t        ; properties
          :empty-lines 1    ; properties
          :created t        ; properties
-        )
+         )
 	("w"               ; key
          "Weights"         ; name
          table-line        ; type
@@ -129,8 +129,8 @@
 	 "|%U|%^{weight}|%^{comment}|"
          :prepend t        ; properties
          :kill-buffer t    ; properties
-        )
-
+         )
+	
 	("q"               ; key
 	 "Quick note"      ; name
 	 entry             ; type
@@ -149,7 +149,7 @@
 	 :empty-lines 1    ; properties
 	 :created t        ; properties
 	 )
-
+	
 	("t"               ; key
 	 "Time Log"      ; name
 	 entry             ; type
@@ -173,19 +173,19 @@
 			"~/Dropbox/org/timelog.org"
 			"~/Dropbox/org/birthdays.org"
 			"~/Dropbox/org/Ped.org"
-			     ))
+			))
 
 (setq org-todo-keywords
-       '((sequence "TODO(t)" "READ" "STUDY" "PAPERS" "CODE" "|" "DONE(d)" "CANCELLED(c)")))
+      '((sequence "TODO(t)" "READ" "STUDY" "PAPERS" "CODE" "|" "DONE(d)" "CANCELLED(c)")))
 
 (setq org-todo-keyword-faces
-  '(("TODO" . (:foreground "#ff39a3" :weight bold))
-("READ" . (:foreground "#c4efcd" :weight bold))
-;;("STUDY" . (:foreground "white" :background "#4d4d4d" :weight bold))
-("STUDY" . (:foreground "white" :weight bold))
-("PAPERS" . (:foreground "#b3c6e5" :weight bold))
-("CODE" . (:foreground "#bc86e0" :weight bold))
-))
+      '(("TODO" . (:foreground "#ff39a3" :weight bold))
+	("READ" . (:foreground "#c4efcd" :weight bold))
+	;;("STUDY" . (:foreground "white" :background "#4d4d4d" :weight bold))
+	("STUDY" . (:foreground "white" :weight bold))
+	("PAPERS" . (:foreground "#b3c6e5" :weight bold))
+	("CODE" . (:foreground "#bc86e0" :weight bold))
+	))
 
 ;; sort by todo state (for todo list) and then time (for daily logs)
 (setq org-agenda-sorting-strategy 
@@ -324,7 +324,7 @@
 
 ;; Enable vertico
 (use-package vertico
-   :straight (vertico :files (:defaults "extensions/*")
+  :straight (vertico :files (:defaults "extensions/*")
                      :includes (vertico-indexed vertico-multiform vertico-directory vertico-quick))
   :init
   (vertico-mode)
@@ -334,8 +334,8 @@
   (add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)  
   :bind
   (:map vertico-map
-   ;; ("<tab>" #'vertico-insert) ; Set manually otherwise setting `vertico-quick-insert' overrides this
-   ;; ("<escape>" #'minibuffer-keyboard-quit)
+	;; ("<tab>" #'vertico-insert) ; Set manually otherwise setting `vertico-quick-insert' overrides this
+	;; ("<escape>" #'minibuffer-keyboard-quit)
 	("?" . #'minibuffer-completion-help)
 	("C-M-n" . #'vertico-next-group)
 	("C-M-p" . #'vertico-previous-group)
@@ -354,16 +354,16 @@
 	("C-l" . #'kb/vertico-multiform-flat-toggle)
 	("M-q" . #'vertico-quick-insert)
 	("C-q" . #'vertico-quick-insert)
-   )
+	)
   ;; Different scroll margin
   ;; (setq vertico-scroll-margin 0)
-
+  
   ;; Show more candidates
   ;; (setq vertico-count 20)
-
+  
   ;; Grow and shrink the Vertico minibuffer
   ;; (setq vertico-resize t)
-
+  
   ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
   ;; (setq vertico-cycle t)
   )
@@ -386,15 +386,15 @@
                   (car args))
           (cdr args)))
   (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-
+  
   ;; Do not allow the cursor in the minibuffer prompt
   (setq minibuffer-prompt-properties
         '(read-only t cursor-intangible t face minibuffer-prompt))
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-
+  
   ;; Support opening new minibuffers from inside existing minibuffers.
   (setq enable-recursive-minibuffers t)
-
+  
   ;; Emacs 28 and newer: Hide commands in M-x which do not work in the current
   ;; mode.  Vertico commands are hidden in normal buffers. This setting is
   ;; useful beyond Vertico.
@@ -407,12 +407,12 @@
   ;; available in the *Completions* buffer, add it to the
   ;; `completion-list-mode-map'.
   :bind (:map minibuffer-local-map
-         ("M-A" . marginalia-cycle))
-
+              ("M-A" . marginalia-cycle))
+  
   
   ;; The :init section is always executed.
   :init
-
+  
   ;; Marginalia must be activated in the :init section of use-package such that
   ;; the mode gets enabled right away. Note that this forces loading the
   ;; package.
@@ -526,12 +526,12 @@
 (eval-when-compile
   (defmacro my/embark-ace-action (fn)
     `(defun ,(intern (concat "my/embark-ace-" (symbol-name fn))) ()
-      (interactive)
-      (with-demoted-errors "%s"
-       (require 'ace-window)
-       (let ((aw-dispatch-always t))
-        (aw-switch-to-window (aw-select nil))
-        (call-interactively (symbol-function ',fn)))))))
+       (interactive)
+       (with-demoted-errors "%s"
+	 (require 'ace-window)
+	 (let ((aw-dispatch-always t))
+           (aw-switch-to-window (aw-select nil))
+           (call-interactively (symbol-function ',fn)))))))
 
 
 (use-package saveplace
@@ -554,12 +554,12 @@
   ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
   ;; (corfu-scroll-margin 5)        ;; Use scroll margin
-
+  
   ;; Enable Corfu only for certain modes.
   :hook ((prog-mode . corfu-mode)
          (shell-mode . corfu-mode)
          (eshell-mode . corfu-mode))
-
+  
   ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
   ;; be used globally (M-/).  See also the customization variable
   ;; `global-corfu-modes' to exclude certain modes.
@@ -578,23 +578,23 @@
 
 ;; highly recommanded to use corfu-separator with "32" (space)
 (define-key corfu-map (kbd "SPC")
-  (lambda ()
-    (interactive)
-    (if current-prefix-arg
-        ;;we suppose that we want leave the word like that, so do a space
-        (progn
-          (corfu-quit)
-          (insert " "))
-      (if (and (= (char-before) corfu-separator)
-               (or
-                ;; check if space, return or nothing after
-                (not (char-after))
-                (= (char-after) ?\s)
-                (= (char-after) ?\n)))
-          (progn
-            (corfu-insert)
-            (insert " "))
-        (corfu-insert-separator)))))
+	    (lambda ()
+	      (interactive)
+	      (if current-prefix-arg
+		  ;;we suppose that we want leave the word like that, so do a space
+		  (progn
+		    (corfu-quit)
+		    (insert " "))
+		(if (and (= (char-before) corfu-separator)
+			 (or
+			  ;; check if space, return or nothing after
+			  (not (char-after))
+			  (= (char-after) ?\s)
+			  (= (char-after) ?\n)))
+		    (progn
+		      (corfu-insert)
+		      (insert " "))
+		  (corfu-insert-separator)))))
 
 ;; ;; Add extensions
 (use-package cape
@@ -634,7 +634,7 @@
   ;;(add-to-list 'completion-at-point-functions #'cape-dict)
   ;;(add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
   ;;(add-to-list 'completion-at-point-functions #'cape-line)
-)
+  )
 
 (defun orderless-fast-dispatch (word index total)
   (and (= index 0) (= total 1) (length< word 2)
@@ -714,9 +714,9 @@
 
 
 (use-package keyfreq
-    :config
-    (keyfreq-mode 1)
-    (keyfreq-autosave-mode 1))
+  :config
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode 1))
 
 ;; csv viewing
 (use-package csv-mode)
@@ -826,8 +826,8 @@
 ;; This was originally use to not make double erros from Pyright/ruff
 ;; But it turns out that Pyright had it's on problem where it was sending double messages:
 ;; flymake-show-buffer-diagnostics:
-    ;; 1  16 error    e-f-b    Pyright [reportUnusedImport]: Import "np" is not accessed
-    ;; 1  16 note     e-f-b    Pyright: "np" is not accessed
+;; 1  16 error    e-f-b    Pyright [reportUnusedImport]: Import "np" is not accessed
+;; 1  16 note     e-f-b    Pyright: "np" is not accessed
 (defun my-fix-eglot-diagnostics (diags)
   "Drop Pyright 'variable not accessed' notes from DIAGS."
   (list (seq-remove (lambda (d)
@@ -932,10 +932,10 @@
 (defun efs/configure-eshell ()
   ;; Save command history when commands are entered
   (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
-
+  
   ;; Truncate buffer for performance
   (add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
-
+  
   (setq eshell-history-size         10000
         eshell-buffer-maximum-lines 10000
         eshell-hist-ignoredups t
@@ -965,7 +965,7 @@
  '((emacs-lisp . t)
    ;; (julia . t)
    (python . t)
-;;   (jupyter . t)
+   ;;   (jupyter . t)
    ))
 
 ;; (defun org-edit-src-code nil)
@@ -1020,17 +1020,17 @@
 ;; (add-to-list 'code-cells-eval-region-commands '(jupyter-repl-interaction-mode . gm/jupyter-eval-region))
 
 ;; (use-package jupyter :defer t :custom (jupyter-repl-echo-eval-p t))
- (setq python-shell-interpreter "ipython"
-        python-shell-interpreter-args "-i --simple-prompt --InteractiveShell.display_page=True")
+(setq python-shell-interpreter "ipython"
+      python-shell-interpreter-args "-i --simple-prompt --InteractiveShell.display_page=True")
 
 (use-package elfeed
   :config
   (setq ;;elfeed-search-feed-face ":foreground #ffffff :weight bold"
-	elfeed-feeds (quote
-		      (("https://hnrss.org/frontpage" hackernews)
-		       ("https://www.reddit.com/r/emacs.rss" emacs reddit)
-		       ("https://www.reddit.com/r/montreal.rss" montreal reddit)
-		      ))))
+   elfeed-feeds (quote
+		 (("https://hnrss.org/frontpage" hackernews)
+		  ("https://www.reddit.com/r/emacs.rss" emacs reddit)
+		  ("https://www.reddit.com/r/montreal.rss" montreal reddit)
+		  ))))
 
 
 ;;;****************************** STYLE ******************************
@@ -1114,7 +1114,7 @@
 ;;                         (registers . 5)))
 ;;   (dashboard-setup-startup-hook)
 ;;   )
- 
+
 (use-package delight)
 (delight '((eldoc-mode nil "eldoc")
 	   (hs-minor-mode nil "hideshow")
@@ -1246,29 +1246,29 @@ C-e: jump to end of line
 
 (use-package avy
   :bind (
-	 ;("C-S-a" . 'avy-goto-char-timer)
+					;("C-S-a" . 'avy-goto-char-timer)
 	 ;; ("C-S-r" . 'avy-copy-region))  ; this will also paste to pt
 	 ("C-S-r" . 'avy-kill-ring-save-region))
-	 ;; ("C-S-a" . 'avy-goto-char-2)
+  ;; ("C-S-a" . 'avy-goto-char-2)
   :config
   (setq avy-styles-alist '((avy-goto-char-timer . pre)))
   (setq avy-timeout-seconds 0.3)
   (setq avy-background t)	  
   (setf (alist-get ?\C-y avy-dispatch-alist) 'avy-action-yank 
-      (alist-get ?\M-w avy-dispatch-alist) 'avy-action-copy 
-      (alist-get ?\C-k avy-dispatch-alist) 'avy-action-kill-move 
-      (alist-get ?\C-t avy-dispatch-alist) 'avy-action-kill-stay
-      (alist-get ?\C-m avy-dispatch-alist) 'avy-action-mark
-      (alist-get ?\M-t avy-dispatch-alist) 'avy-action-teleport
-      (alist-get ?C avy-dispatch-alist) 'my-avy-action-copy-whole-line
-      (alist-get ?Y avy-dispatch-alist) 'my-avy-action-yank-whole-line
-      (alist-get ?\C-w avy-dispatch-alist) 'my-avy-action-kill-whole-line
-      (alist-get ?\C-e avy-dispatch-alist) 'my-avy-action-goto-end-of-line
-      (alist-get ?\C-a avy-dispatch-alist) 'my-avy-action-goto-beginning-of-line
-  )
+	(alist-get ?\M-w avy-dispatch-alist) 'avy-action-copy 
+	(alist-get ?\C-k avy-dispatch-alist) 'avy-action-kill-move 
+	(alist-get ?\C-t avy-dispatch-alist) 'avy-action-kill-stay
+	(alist-get ?\C-m avy-dispatch-alist) 'avy-action-mark
+	(alist-get ?\M-t avy-dispatch-alist) 'avy-action-teleport
+	(alist-get ?C avy-dispatch-alist) 'my-avy-action-copy-whole-line
+	(alist-get ?Y avy-dispatch-alist) 'my-avy-action-yank-whole-line
+	(alist-get ?\C-w avy-dispatch-alist) 'my-avy-action-kill-whole-line
+	(alist-get ?\C-e avy-dispatch-alist) 'my-avy-action-goto-end-of-line
+	(alist-get ?\C-a avy-dispatch-alist) 'my-avy-action-goto-beginning-of-line
+	)
   )
 
-(key-chord-define-global "aa"     'avy-goto-char-timer)
+;; (key-chord-define-global "aa"     'avy-goto-char-timer)
 (key-chord-define-global "pq"     'avy-goto-char-timer)
 
 
@@ -1279,9 +1279,9 @@ C-e: jump to end of line
 (defun my-defn-other-window ()
   "Open defn in other window, but also move to top"
   (interactive)
-;;   (save-excursion
-;;     (xref-find-definitions-other-window nil)
-;;     ;; (move-cursor-to-top)
+  ;;   (save-excursion
+  ;;     (xref-find-definitions-other-window nil)
+  ;;     ;; (move-cursor-to-top)
   ;; ))
   (let ((original-window (selected-window))
         (original-point (point)))
@@ -1291,40 +1291,7 @@ C-e: jump to end of line
     (goto-char original-point)))
 (global-set-key (kbd "C-x 4 .") 'my-defn-other-window)
 
-(defun my-copy-and-comment-region ()
-  "Copy the selected region of text and then comment it out."
-  (interactive)
-  (when (region-active-p)
-    (let ((beg (region-beginning))
-          (end (region-end)))
-      (kill-ring-save beg end)
-      (comment-region beg end)
-      (newline-and-indent)
-      (message "Region copied and commented out."))))
 
-(defun my-copy-comment-and-paste-region ()
-  "Copy the selected region of text, comment it out, and paste it below."
-  (interactive)
-  (when (region-active-p)
-    (let ((beg (region-beginning))
-          (end (region-end)))
-      (kill-ring-save beg end)
-      (comment-region beg end)
-      (newline-and-indent)
-      (yank)
-      ;; (newline-and-indent)
-      (message "Region copied, commented, and pasted."))))
-
-;; (global-set-key (kbd "C-;") 'my-copy-comment-and-paste-region)  ;; trouble in gnome
-(global-set-key (kbd "M-C-;") 'my-copy-comment-and-paste-region)
-;; (key-chord-define-global "\'\'" 'my-copy-comment-and-paste-region)
-
-(defun my-end-of-par ()
-  "Move point to the end of the current paragraph."
-  (interactive)
-  (end-of-paragraph-text)
-  ;; (end-of-line)
-  )
 
 ;; (global-set-key (kbd "M-n") 'my-end-of-par)
 ;; (global-set-key (kbd "M-n") 'python-nav-end-of-block)
@@ -1336,7 +1303,7 @@ C-e: jump to end of line
 ;; (add-hook 'python-mode-hook 'my-python-mode-hook)
 
 ;; (eval-after-load 'python
-                    ;; '(define-key python-mode-map "M-n" 'python-nav-end-of-block))
+;; '(define-key python-mode-map "M-n" 'python-nav-end-of-block))
 
 ;; (add-hook 'python-ts-mode-hook
 ;;           (lambda () (local-set-key (kbd "M-n") 'python-nav-end-of-block)))
@@ -1351,11 +1318,11 @@ C-e: jump to end of line
           (lambda () (local-set-key (kbd "M-n") 'python-nav-forward-block)))
 
 (defun my-test ()  
-     (interactive)
-     (set-mark-command nil)
-     (python-nav-end-of-block)
-     (my-copy-comment-and-paste-region)
-     (message "boom"))
+  (interactive)
+  (set-mark-command nil)
+  (python-nav-end-of-block)
+  (my-copy-comment-and-paste-region)
+  (message "boom"))
 ;; (global-set-key (kbd "M-n") '('set-mark-command 'my-end-of-par 'my-copy-comment-and-paste-region))
 
 ;; (global-set-key (kbd "C-S-a") 'back-to-indentation)
@@ -1374,7 +1341,7 @@ C-e: jump to end of line
 (global-set-key (kbd "<C-return>") 'newline-without-break-of-line)
 
 (use-package expand-region
-    :bind ("C-=" . er/expand-region))
+  :bind ("C-=" . er/expand-region))
 
 (global-set-key (kbd "C-x C-i") (lambda () (interactive) (find-file "~/.emacs.d/init.el")))
 
@@ -1389,7 +1356,7 @@ C-e: jump to end of line
   (recenter 0))
 (global-set-key (kbd "C-c t") 'move-cursor-to-top)
 
-;C-x C-r to revert-buffer
+					;C-x C-r to revert-buffer
 (global-set-key [(control x) (control r)] 'revert-buffer)
 
 (defun scroll-up-one-line ()
@@ -1413,7 +1380,7 @@ C-e: jump to end of line
 (global-set-key (kbd "M-m") 'duplicate-dwim) ;; duplicate a line or region
 
 
-;commenting
+					;commenting
 ;; original idea from
 ;; http://www.opensubscriber.com/message/emacs-devel@gnu.org/10971693.html
 (defun comment-dwim-line (&optional arg)
@@ -1446,8 +1413,8 @@ C-e: jump to end of line
   ;; (counsel-recentf)
   (consult-recent-file)
   (windmove-left nil) (setq register-preview-delay 0.5
-        register-preview-function #'consult-register-format)
-)
+			    register-preview-function #'consult-register-format)
+  )
 (global-set-key (kbd "C-x 4 C-S-f") 'my-recentf-open-other-window)
 
 ;; Had to download eglot-lsp-booster from here first:
@@ -1526,7 +1493,7 @@ C-e: jump to end of line
             (and
              (memq sym minor-mode-list)
              (boundp sym)))
-      (propertize cmd 'face 'font-lock-constant-face)
+	(propertize cmd 'face 'font-lock-constant-face)
       cmd)))
 
 ;; add-to-list works if 'file isn't already in the alist
@@ -1557,7 +1524,7 @@ C-e: jump to end of line
 
 
 ;; (desktop-save-mode 1)
-  
+
 ;;;; `ediff'
 (setq ediff-keep-variants nil)
 (setq ediff-make-buffers-readonly-at-startup nil)
@@ -1566,10 +1533,19 @@ C-e: jump to end of line
 (setq ediff-split-window-function 'split-window-horizontally)
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 
-(defun gpt-comment-copy-yank-line-or-region ()
+
+(defun my-comment-copy-yank-line-or-region ()
   "Copy the current line or region, comment it out, and yank below."
   (interactive)
-  (let ((beg (if (region-active-p) (region-beginning) (line-beginning-position)))
+  ; hack to make sure region begins at beg. of line
+  (if (region-active-p) (if (< (point) (mark)) (exchange-point-and-mark)))
+  (if (region-active-p)  
+      (progn (exchange-point-and-mark)
+	     (move-beginning-of-line 1)
+	     (exchange-point-and-mark)
+	     )
+    )
+  (let ((beg (if (region-active-p) (region-beginning)  (line-beginning-position)))
         (end (if (region-active-p) (region-end) (line-end-position))))
     (copy-region-as-kill beg end)
     (comment-region beg end)
@@ -1577,5 +1553,5 @@ C-e: jump to end of line
     (newline)
     (yank)))
 
-
-(global-set-key (kbd "C-M-;") 'gpt-comment-copy-yank-line-or-region)
+(global-set-key (kbd "C-M-;") 'my-comment-copy-yank-line-or-region)
+(key-chord-define-global "\'\'" 'my-comment-copy-yank-line-or-region)

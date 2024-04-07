@@ -1,4 +1,4 @@
-;; -*- lexical-binding: t; eval: (local-set-key (kbd "C-c i") #'consult-outline); outline-regexp: ";;;"; -*-
+;; -*- lexical-binding: t; outline-regexp: ";;;" -*-
 
 ;;;****************************** GENERAL STUFF ******************************
 ;; (setq warning-minimum-level :error)
@@ -1157,6 +1157,8 @@
 
 (global-set-key [remap zap-to-char] 'zap-up-to-char)
 
+(use-package key-chord)
+(key-chord-mode 1)
 
 (define-key dired-mode-map (kbd "C-c w") 'wdired-change-to-wdired-mode)
 
@@ -1202,7 +1204,7 @@ C-e: jump to end of line
 (global-set-key (kbd "C-c d") 'hydra-zoom/body)
 (key-chord-define-global "hh"     'hydra-zoom/body)
 
-(defun my-avy-action-copy-whole-line (pt)
+(defun avy-action-copy-whole-line (pt)
   (save-excursion
     (goto-char pt)
     (cl-destructuring-bind (start . end)
@@ -1213,18 +1215,18 @@ C-e: jump to end of line
     (ring-ref avy-ring 0)))
   t)
 
-(defun my-avy-action-yank-whole-line (pt)
-  (my-avy-action-copy-whole-line pt)
+(defun avy-action-yank-whole-line (pt)
+  (avy-action-copy-whole-line pt)
   (save-excursion (yank))
   t)
 
-(defun my-avy-action-kill-whole-line (pt)
+(defun avy-action-kill-whole-line (pt)
   (goto-char pt)
   (kill-whole-line)
   (indent-for-tab-command nil)
   t)
 
-(defun my-avy-action-goto-end-of-line (pt)
+(defun avy-action-end-of-line (pt)
   "Goto PT."
   (let ((frame (window-frame (selected-window))))
     (unless (equal frame (selected-frame))
@@ -1234,7 +1236,7 @@ C-e: jump to end of line
     (move-end-of-line nil)
     ))
 
-(defun my-avy-action-goto-beginning-of-line (pt)
+(defun avy-action-beginning-of-line (pt)
   "Goto PT."
   (let ((frame (window-frame (selected-window))))
     (unless (equal frame (selected-frame))
@@ -1244,36 +1246,98 @@ C-e: jump to end of line
     (move-beginning-of-line nil)
     ))
 
+(defun avy-action-mark-until (pt)
+  "Mark sexp at PT."
+  (set-mark (point))
+  (goto-char pt)
+  (move-end-of-line nil))
+
 (use-package avy
   :bind (
-					;("C-S-a" . 'avy-goto-char-timer)
-	 ;; ("C-S-r" . 'avy-copy-region))  ; this will also paste to pt
+	 ;("C-S-a" . 'avy-goto-char-timer)
+	 ; ("C-S-r" . 'avy-copy-region))  ; this will also paste to pt
 	 ("C-S-r" . 'avy-kill-ring-save-region))
-  ;; ("C-S-a" . 'avy-goto-char-2)
+  ;;("C-S-a" . 'avy-goto-char-2)
   :config
+  ;; (setq avy-keys '(?q ?w ?a ?s ?k ?l ?o ?p))
+  (setq avy-keys '(?q ?e ?r ?y ?u ?o ?p
+                    ?a ?s ?d ?f ?g ?h ?j
+                    ?k ?l ?' ?x ?c ?v ?b
+                    ?n))
   (setq avy-styles-alist '((avy-goto-char-timer . pre)))
   (setq avy-timeout-seconds 0.3)
-  (setq avy-background t)	  
-  (setf (alist-get ?\C-y avy-dispatch-alist) 'avy-action-yank 
-	(alist-get ?\M-w avy-dispatch-alist) 'avy-action-copy 
-	(alist-get ?\C-k avy-dispatch-alist) 'avy-action-kill-move 
-	(alist-get ?\C-t avy-dispatch-alist) 'avy-action-kill-stay
-	(alist-get ?\C-m avy-dispatch-alist) 'avy-action-mark
-	(alist-get ?\M-t avy-dispatch-alist) 'avy-action-teleport
-	(alist-get ?C avy-dispatch-alist) 'my-avy-action-copy-whole-line
-	(alist-get ?Y avy-dispatch-alist) 'my-avy-action-yank-whole-line
-	(alist-get ?\C-w avy-dispatch-alist) 'my-avy-action-kill-whole-line
-	(alist-get ?\C-e avy-dispatch-alist) 'my-avy-action-goto-end-of-line
-	(alist-get ?\C-a avy-dispatch-alist) 'my-avy-action-goto-beginning-of-line
-	)
+  (setq avy-background t)
+  ;; (setq avy-dispatch-alist 
+  ;; 	(assq-delete-all ?i avy-dispatch-alist)
+  ;; 	)
+  ;; (setq avy-dispatch-alist 
+  ;; 	(assq-delete-all ?n avy-dispatch-alist)
+  ;; 	)
+  (setq avy-dispatch-alist
+      (dolist (key '(?i ?n ?y ?w ?x ?X ?m ?t ?a ?e ?\s ?\C-w ?C ?z ?Y) avy-dispatch-alist)
+        (setq avy-dispatch-alist (assq-delete-all key avy-dispatch-alist))))
+  (setf  ;; order is important here so dispatch help shows up nicely
+   (alist-get ?\C-w avy-dispatch-alist) 'avy-action-kill-whole-line
+   (alist-get ?Y avy-dispatch-alist) 'avy-action-yank-whole-line
+   (alist-get ?X avy-dispatch-alist) 'avy-action-kill-stay
+   (alist-get ?e avy-dispatch-alist) 'avy-action-end-of-line
+   (alist-get ?\s avy-dispatch-alist) 'avy-action-mark-until  ; space
+   (alist-get ?w avy-dispatch-alist) 'avy-action-copy 
+   (alist-get ?m avy-dispatch-alist) 'avy-action-mark
+   (alist-get ?t avy-dispatch-alist) 'avy-action-teleport
+   (alist-get ?C avy-dispatch-alist) 'avy-action-copy-whole-line
+   (alist-get ?y avy-dispatch-alist) 'avy-action-yank 
+   (alist-get ?x avy-dispatch-alist) 'avy-action-kill-move 
+   (alist-get ?a avy-dispatch-alist) 'avy-action-beg-of-line
+   )
   )
 
 ;; (key-chord-define-global "aa"     'avy-goto-char-timer)
 (key-chord-define-global "pq"     'avy-goto-char-timer)
 
+(defun avy-show-dispatch-help ()  
+  (let* ((len (length "avy-action-"))
+         (fw (frame-width))
+         (raw-strings (mapcar
+                   (lambda (x)
+                     (format "%2s: %-19s"
+                             (propertize
+                              (char-to-string (car x))
+                              'face 'aw-key-face)
+                             (substring (symbol-name (cdr x)) len)))
+                   avy-dispatch-alist))
+         (max-len (1+ (apply #'max (mapcar #'length raw-strings))))
+         (strings-len (length raw-strings))
+         (per-row (floor fw max-len))
+         display-strings)
+    (cl-loop for string in raw-strings
+             for N from 1 to strings-len do
+             (push (concat string " ") display-strings)
+             (when (= (mod N per-row) 0) (push "\n" display-strings)))
+    (message "%s" (apply #'concat (nreverse display-strings)))))
 
-(use-package key-chord)
-(key-chord-mode 1)
+
+(defun my-comment-copy-yank-line-or-region ()
+  "Copy the current line or region, comment it out, and yank below."
+  (interactive)
+  ; hack to make sure region begins at beg. of line
+  (if (region-active-p) (if (< (point) (mark)) (exchange-point-and-mark)))
+  (if (region-active-p)  
+      (progn (exchange-point-and-mark)
+	     (move-beginning-of-line 1)
+	     (exchange-point-and-mark)
+	     )
+    )
+  (let ((beg (if (region-active-p) (region-beginning)  (line-beginning-position)))
+        (end (if (region-active-p) (region-end) (line-end-position))))
+    (copy-region-as-kill beg end)
+    (comment-region beg end)
+    (move-end-of-line 1)
+    (newline)
+    (yank)))
+
+(global-set-key (kbd "C-M-;") 'my-comment-copy-yank-line-or-region)
+(key-chord-define-global "\'\'" 'my-comment-copy-yank-line-or-region)
 
 
 (defun my-defn-other-window ()
@@ -1532,26 +1596,3 @@ C-e: jump to end of line
 (setq ediff-show-clashes-only t)
 (setq ediff-split-window-function 'split-window-horizontally)
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
-
-
-(defun my-comment-copy-yank-line-or-region ()
-  "Copy the current line or region, comment it out, and yank below."
-  (interactive)
-  ; hack to make sure region begins at beg. of line
-  (if (region-active-p) (if (< (point) (mark)) (exchange-point-and-mark)))
-  (if (region-active-p)  
-      (progn (exchange-point-and-mark)
-	     (move-beginning-of-line 1)
-	     (exchange-point-and-mark)
-	     )
-    )
-  (let ((beg (if (region-active-p) (region-beginning)  (line-beginning-position)))
-        (end (if (region-active-p) (region-end) (line-end-position))))
-    (copy-region-as-kill beg end)
-    (comment-region beg end)
-    (move-end-of-line 1)
-    (newline)
-    (yank)))
-
-(global-set-key (kbd "C-M-;") 'my-comment-copy-yank-line-or-region)
-(key-chord-define-global "\'\'" 'my-comment-copy-yank-line-or-region)

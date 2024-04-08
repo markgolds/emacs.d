@@ -751,20 +751,26 @@
   )
 
 
-;;;****************************** PYTHON ******************************
-
-(use-package pyvenv
-  :ensure t
+(use-package vterm
   :config
-  (pyvenv-mode 1)
-  ;; (pyvenv-activate "~/miniconda3/envs/alchemistry/")
-  (pyvenv-activate "~/miniconda3/envs/qdgp/")
+  (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
+  (setq vterm-max-scrollback 10000)
+  (setq-default vterm-buffer-name-string "vterm: %s")
   )
 
-;; (use-package conda
+;;;****************************** PYTHON ******************************
+
+;; (use-package pyvenv
+;;   :ensure t
 ;;   :config
-;;   (conda-env-activate "qdgp")
+;;   (pyvenv-mode 1)
+;;   (pyvenv-activate "~/miniconda3/envs/qdgp/")
 ;;   )
+
+(use-package conda
+  :config
+  (conda-env-activate "qdgp")
+  )
 
 ;; (use-package ein
 ;;   :init
@@ -1539,6 +1545,11 @@ C-e: jump to end of line
 
 ;; (global-hl-line-mode t)  ;; highlight line
 ;; (global-hl-line-mode 0)
+(use-package hl-line
+  :ensure t
+  :hook ((after-init . global-hl-line-mode)
+         (vterm-mode . (lambda () (setq-local global-hl-line-mode nil)))))
+
 
 (defvar +vertico-transform-functions nil)
 
@@ -1625,16 +1636,3 @@ C-e: jump to end of line
 ;;         '(("[ \t]\\([+-][^ \t\n]+\\)" 1 font-lock-builtin-face)
 ;;           ("^[^ \t\n]+:.*" . font-lock-string-face)
 ;;           ("^\\[[1-9][0-9]*\\]" . font-lock-constant-face)))
-
-(use-package vterm
-  :config
-  (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
-  (setq vterm-max-scrollback 10000))
-;; (define-key vterm-mode-map (kbd "C-s") #'vterm-send-next-key)
-
-;; (define-key vterm-mode-map (kbd "C-s") nil)
-
-(use-package hl-line
-  :ensure t
-  :hook ((after-init . global-hl-line-mode)
-         (vterm-mode . (lambda () (setq-local global-hl-line-mode nil)))))

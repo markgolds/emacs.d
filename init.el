@@ -53,6 +53,7 @@
 
 ;; ls -alFh when opening dired
 (setq dired-listing-switches "-alFh")
+(setq dired-kill-when-opening-new-dired-buffer t)  ;; don't accumulate buffers
 
 (winner-mode 1)
 ;; Setup straight --------------------------------------------------
@@ -476,6 +477,10 @@
   :init
   (setq register-preview-delay 0.5
         register-preview-function #'consult-register-format)
+  :config
+  (setq consult-grep-args '("grep"
+			    ;; (consult--grep-exclude-args)  ; this is default, but makes it hard to ad my own options in searches
+			    "--null --line-buffered --color=never --ignore-case     --with-filename --line-number -I -r"))
   )
 
 (use-package key-chord)
@@ -1260,9 +1265,9 @@ C-e: jump to end of line
   ;;("C-S-a" . 'avy-goto-char-2)
   :config
   ;; (setq avy-keys '(?q ?w ?a ?s ?k ?l ?o ?p))
-  (setq avy-keys '(?q ?e ?r ?y ?u ?o ?p
-                    ?a ?s ?d ?f ?g ?h ?j
-                    ?k ?l ?' ?x ?c ?v ?b
+  (setq avy-keys '(?q ?r ?u ?o ?p
+                    ?s ?d ?f ?g ?h ?j
+                    ?k ?l ?' ?v ?b
                     ?n))
   (setq avy-styles-alist '((avy-goto-char-timer . pre)))
   (setq avy-timeout-seconds 0.3)
@@ -1532,7 +1537,7 @@ C-e: jump to end of line
 ;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 
 
-(global-hl-line-mode t)  ;; highlight line
+;; (global-hl-line-mode t)  ;; highlight line
 ;; (global-hl-line-mode 0)
 
 (defvar +vertico-transform-functions nil)
@@ -1596,3 +1601,40 @@ C-e: jump to end of line
 (setq ediff-show-clashes-only t)
 (setq ediff-split-window-function 'split-window-horizontally)
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+
+
+;; (setq shell-command-prompt-show-cwd t) ; Emacs 27.1
+;;   (setq ansi-color-for-comint-mode t)
+;;   (setq shell-input-autoexpand 'input)
+;;   (setq shell-highlight-undef-enable t) ; Emacs 29.1
+;;   (setq shell-has-auto-cd nil) ; Emacs 29.1
+;;   ;; (setq shell-get-old-input-include-continuation-lines t) ; Emacs 30.1
+;;   (setq shell-kill-buffer-on-exit t) ; Emacs 29.1
+;;   (setq shell-completion-fignore '("~" "#" "%"))
+;;   (setq-default comint-scroll-to-bottom-on-input t)
+;;   (setq-default comint-scroll-to-bottom-on-output nil)
+;;   (setq-default comint-input-autoexpand 'input)
+;;   (setq comint-prompt-read-only t)
+;;   (setq comint-buffer-maximum-size 9999)
+;;   (setq comint-completion-autolist t)
+;;   (setq comint-input-ignoredups t)
+;;   (setq tramp-default-remote-shell "/bin/bash")
+
+
+;;   (setq shell-font-lock-keywords
+;;         '(("[ \t]\\([+-][^ \t\n]+\\)" 1 font-lock-builtin-face)
+;;           ("^[^ \t\n]+:.*" . font-lock-string-face)
+;;           ("^\\[[1-9][0-9]*\\]" . font-lock-constant-face)))
+
+(use-package vterm
+  :config
+  (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
+  (setq vterm-max-scrollback 10000))
+;; (define-key vterm-mode-map (kbd "C-s") #'vterm-send-next-key)
+
+;; (define-key vterm-mode-map (kbd "C-s") nil)
+
+(use-package hl-line
+  :ensure t
+  :hook ((after-init . global-hl-line-mode)
+         (vterm-mode . (lambda () (setq-local global-hl-line-mode nil)))))

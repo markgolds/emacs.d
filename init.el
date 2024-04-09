@@ -1170,7 +1170,8 @@
 ;;   )
 
 (with-eval-after-load 'time
-  (setq display-time-default-load-average nil)
+  ;; (setq display-time-default-load-average nil)
+  (setq display-time-default-load-average 0)
   (setq display-time-24hr-format t)
   ;; (setq display-time-format "%a %b %d %R")
   (setq display-time-format "%F %R")
@@ -1300,12 +1301,12 @@ C-e: jump to end of line
   ;; 	(assq-delete-all ?n avy-dispatch-alist)
   ;; 	)
   (setq avy-dispatch-alist
-      (dolist (key '(?i ?n ?y ?w ?x ?X ?m ?t ?a ?e ?\s ?\C-w ?C ?z ?Y) avy-dispatch-alist)
+      (dolist (key '(?i ?n ?y ?w ?x ?X ?m ?t ?a ?e ?\s ?\C-w ?C ?z ?Y ?k) avy-dispatch-alist)
         (setq avy-dispatch-alist (assq-delete-all key avy-dispatch-alist))))
   (setf  ;; order is important here so dispatch help shows up nicely
    (alist-get ?\C-w avy-dispatch-alist) 'avy-action-kill-whole-line
    (alist-get ?Y avy-dispatch-alist) 'avy-action-yank-whole-line
-   (alist-get ?X avy-dispatch-alist) 'avy-action-kill-stay
+   (alist-get ?K avy-dispatch-alist) 'avy-action-kill-stay
    (alist-get ?e avy-dispatch-alist) 'avy-action-end-of-line
    (alist-get ?\s avy-dispatch-alist) 'avy-action-mark-until  ; space
    (alist-get ?w avy-dispatch-alist) 'avy-action-copy 
@@ -1313,7 +1314,7 @@ C-e: jump to end of line
    (alist-get ?t avy-dispatch-alist) 'avy-action-teleport
    (alist-get ?C avy-dispatch-alist) 'avy-action-copy-whole-line
    (alist-get ?y avy-dispatch-alist) 'avy-action-yank 
-   (alist-get ?x avy-dispatch-alist) 'avy-action-kill-move 
+   (alist-get ?k avy-dispatch-alist) 'avy-action-kill-move 
    (alist-get ?a avy-dispatch-alist) 'avy-action-beg-of-line
    )
   )

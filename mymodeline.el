@@ -26,7 +26,7 @@
 		"     "
 		my-modeline-god
 		;; "        "
-		(:eval (propertize " " 'display '((space :align-to (- right 20)))))
+		(:eval (propertize " " 'display '((space :align-to (- right 25)))))
 		my-modeline-misc-info
 
 		))
@@ -52,7 +52,11 @@ Specific to the current window's mode line.")
 (defvar-local my-modeline-god
     '(:eval
       (when (and (mode-line-window-selected-p) god-local-mode)
-        (propertize " GOD" 'face 'error)))
+        (propertize " GOD" 'face 'error)
+	;; (propertize " GOD" 'face 'bold)
+	;; (propertize "GOD" 'face '(:foreground "red" :weight bold))
+	
+	))
   "Mode line construct displaying `mode-line-defining-kbd-macro'.
 Specific to the current window's mode line.")
 
@@ -69,7 +73,7 @@ Specific to the current window's mode line.")
 
 (defvar-local my-modeline-buffer-name
     '(:eval
-      (format "%s" (propertize (buffer-name) 'face 'success)))
+      (format "%s" (propertize (buffer-name) 'face 'mode-line-buffer-id)))
   "Mode line construct to display the buffer name.")
 
 ;; (defvar-local my-modeline-buffer-name
@@ -87,7 +91,7 @@ Specific to the current window's mode line.")
 
 (defvar-local my-modeline-major-mode
     '(:eval
-      (format "%s" (propertize (my-modeline-major-mode-name) 'face 'bold)))
+      (format "%s" (propertize (my-modeline-major-mode-name) 'face 'italic)))
   "Mode line construct to display the major mode.")
 
 (defvar-local my-modeline-misc-info

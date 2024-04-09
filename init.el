@@ -1,5 +1,18 @@
 ;; -*- lexical-binding: t; outline-regexp: ";;;" -*-
 
+
+(setq calendar-date-style 'iso)
+(setq calendar-time-zone-style 'numeric)
+
+(setq calendar-time-display-form
+        '( 24-hours ":" minutes
+           (when time-zone (format "(%s)" time-zone))))
+
+(setq org-agenda-start-on-weekday 1)
+(setq calendar-week-start-day 1)
+(setq org-agenda-span 'month)
+(setq org-agenda-show-all-dates t)
+
 ;;;****************************** GENERAL STUFF ******************************
 ;; (setq warning-minimum-level :error)
 
@@ -1136,30 +1149,32 @@
 	   (ruff-format-on-save-mode nil "ruff-format")
 	   ))
 
-(use-package doom-modeline
-  :hook (after-init . doom-modeline-mode)
-  :config
-  ;; (setq doom-modeline-buffer-file-name-style 'auto)
-  (setq doom-modeline-buffer-file-name-style 'truncate-nil)
-  (setq doom-modeline-icon t)
-  (setq doom-modeline-lsp-icon nil)
-  (setq doom-modeline-time-icon nil)
-  (setq doom-modeline-time-analogue-clock nil)
-  (setq doom-modeline-position-line-format '("L%l"))
-  ;; (setq doom-modeline-position-column-line-format '("%l:%c"))
-  ;; (setq doom-modeline-position-column-line-format nil)
-  ;; (setq doom-modeline-minor-modes t)
-  (setq doom-modeline-minor-modes t)
-  (setq doom-modeline-buffer-encoding nil)
-  ;; (setq doom-modeline-display-misc-in-all-mode-lines t)
-  (setq doom-modeline-env-enable-python nil)
-  (setq doom-modeline-percent-position '(-3 "%p"))
-  )
+;; (use-package doom-modeline
+;;   :hook (after-init . doom-modeline-mode)
+;;   :config
+;;   ;; (setq doom-modeline-buffer-file-name-style 'auto)
+;;   (setq doom-modeline-buffer-file-name-style 'truncate-nil)
+;;   (setq doom-modeline-icon t)
+;;   (setq doom-modeline-lsp-icon nil)
+;;   (setq doom-modeline-time-icon nil)
+;;   (setq doom-modeline-time-analogue-clock nil)
+;;   (setq doom-modeline-position-line-format '("L%l"))
+;;   ;; (setq doom-modeline-position-column-line-format '("%l:%c"))
+;;   ;; (setq doom-modeline-position-column-line-format nil)
+;;   ;; (setq doom-modeline-minor-modes t)
+;;   (setq doom-modeline-minor-modes t)
+;;   (setq doom-modeline-buffer-encoding nil)
+;;   ;; (setq doom-modeline-display-misc-in-all-mode-lines t)
+;;   (setq doom-modeline-env-enable-python nil)
+;;   (setq doom-modeline-percent-position '(-3 "%p"))
+;;   )
 
 (with-eval-after-load 'time
   (setq display-time-default-load-average nil)
-  ;; (setq display-time-format "%a %b %e %Y")
-  (setq display-time-day-and-date t)
+  (setq display-time-24hr-format t)
+  ;; (setq display-time-format "%a %b %d %R")
+  (setq display-time-format "%F %R")
+  ;; (setq display-time-day-and-date t)
   )
 (display-time)
 
@@ -1636,3 +1651,19 @@ C-e: jump to end of line
 ;;         '(("[ \t]\\([+-][^ \t\n]+\\)" 1 font-lock-builtin-face)
 ;;           ("^[^ \t\n]+:.*" . font-lock-string-face)
 ;;           ("^\\[[1-9][0-9]*\\]" . font-lock-constant-face)))
+
+(use-package spacious-padding
+  :config (spacious-padding-mode 1)
+  (setq spacious-padding-widths
+        '( :internal-border-width 15
+           :header-line-width 4
+           :mode-line-width 6
+           :tab-width 4
+           :right-divider-width 1
+           :scroll-bar-width 0
+           :left-fringe-width 20
+           :right-fringe-width 20))
+  )
+
+(when (file-exists-p "~/.emacs.d/mymodeline.el")
+  (load "~/.emacs.d/mymodeline.el"))

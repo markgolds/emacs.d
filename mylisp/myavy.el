@@ -42,7 +42,7 @@
 
 (defun avy-action-zap-region (pt)
   "Kill from point up to PT."
-  (if (> pt (pointp))      
+  (if (> pt (point))      
       (progn
 	(set-mark (point))
 	(goto-char pt)

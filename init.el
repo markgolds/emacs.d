@@ -206,6 +206,9 @@
       '((agenda todo-state-up time-up)))
 
 
+
+
+
 ;; Turn this off in org mode:
 ;;https://emacs.stackexchange.com/questions/73986/how-do-i-stop-org-babel-from-trying-to-edit-a-source-block-in-a-dedicated-buffer
 ;; electric-indent-mode
@@ -236,6 +239,14 @@
   (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components))
 
 ;;;****************************** MAIN PACKAGES ******************************;;
+
+;; ediff
+(setq ediff-keep-variants nil)
+(setq ediff-make-buffers-readonly-at-startup nil)
+(setq ediff-merge-revisions-with-ancestor t)
+(setq ediff-show-clashes-only t)
+(setq ediff-split-window-function 'split-window-horizontally)
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
 
 (use-package markdown-mode)
 
@@ -1621,13 +1632,7 @@ C-e: jump to end of line
 
 ;; (desktop-save-mode 1)
 
-;;;; `ediff'
-(setq ediff-keep-variants nil)
-(setq ediff-make-buffers-readonly-at-startup nil)
-(setq ediff-merge-revisions-with-ancestor t)
-(setq ediff-show-clashes-only t)
-(setq ediff-split-window-function 'split-window-horizontally)
-(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+
 
 
 ;; (setq shell-command-prompt-show-cwd t) ; Emacs 27.1

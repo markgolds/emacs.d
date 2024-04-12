@@ -805,10 +805,7 @@
 ;;   (add-to-list 'eglot-server-programs
 ;;                '(python-mode . ("ruff-lsp"))))
 
-<<<<<<< HEAD
-=======
 
->>>>>>> dc01675 (cleanup)
 ;; settings: https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings
 (use-package dape
   :after eglot
@@ -883,12 +880,6 @@
   ;; (add-to-list 'eglot-server-programs '(python-mode . ("ruff-lsp" "-stdio" "--linters" "pyflakes,mccabe,pycodestyle,pydocstyle,bandit,black,isort")))
   )
 
-<<<<<<< HEAD
-=======
-
-;; (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
-
->>>>>>> dc01675 (cleanup)
 (use-package isortify
   :hook (python-ts-mode . isortify-mode))
 

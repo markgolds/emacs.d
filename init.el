@@ -503,7 +503,7 @@
         register-preview-function #'consult-register-format)
   :config
   (setq consult-grep-args '("grep"
-			    ;; (consult--grep-exclude-args)  ; this is default, but makes it hard to ad my own options in searches
+			    ;; (consult--grep-exclude-args)  ; this is default, but makes it hard to add options in searches
 			    "--null --line-buffered --color=never --ignore-case     --with-filename --line-number -I -r"))
   )
 
@@ -600,7 +600,6 @@
   (corfu-echo-mode)
   )
 
-(add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
 
 ;; SPC as separator  --> So M-SPC for orderless autocomplete
 (setq corfu-separator 32)
@@ -674,17 +673,8 @@
   (orderless-matching-styles '(orderless-literal orderless-regexp)))
 
 
-
-
-;; (use-package all-the-icons
-;;   :if (display-graphic-p))
-
-;; ;; M-x all-the-icons-install-fonts    ;; do this once after install
-;; (use-package all-the-icons-dired
-;;   :diminish
-;;   )
-
 (use-package dired-open)
+
 (use-package peep-dired
   :config
   (setq peep-dired-cleanup-on-disable t)
@@ -705,15 +695,7 @@
 ;; 	"\\(mkv\\|webm\\|mp4\\|mp3\\|ogg\\|m4a\\|flac\\|wav\\|gz\\|zst\\|tar\\|xz\\|rar\\|zip\\|iso\\|epub\\)")
 ;;   )
 
-
-;; (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
-
-;; (use-package all-the-icons-completion
-;;   :after (marginalia all-the-icons)
-;;   :hook (marginalia-mode . all-the-icons-completion-marginalia-setup)
-;;   :init
-;;   (all-the-icons-completion-mode))
-
+;; icons----------------------------------------------
 (use-package nerd-icons
   :custom
   ;; The Nerd Font you want to use in GUI
@@ -737,6 +719,11 @@
   :hook (ibuffer-mode . nerd-icons-ibuffer-mode))
 
 (use-package nerd-icons-corfu)
+
+(add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+
+;; icons----------------------------------------------
+
 
 (use-package transpose-frame
   :bind ("C-S-t" . transpose-frame))
@@ -807,17 +794,7 @@
 ;;   ;; 	      )
 ;;   )
 
-;; (use-package poetry
-;;   :ensure t
-;;   :defer t
-;;   :config
-;;   ;; Checks for the correct virtualenv. Better strategy IMO because the default
-;;   ;; one is quite slow.
-;;   (setq poetry-tracking-strategy 'switch-buffer)
-;;   :hook (python-mode . poetry-tracking-mode))
 
-;; (require 'blacken)
-;; (add-hook 'python-mode-hook 'blacken-mode)
 
 ;; (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
 (setq major-mode-remap-alist
@@ -828,6 +805,10 @@
 ;;   (add-to-list 'eglot-server-programs
 ;;                '(python-mode . ("ruff-lsp"))))
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> dc01675 (cleanup)
 ;; settings: https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings
 (use-package dape
   :after eglot
@@ -876,7 +857,6 @@
 
 (use-package eglot
   :preface
-  ;; :defer t
   :bind (:map eglot-mode-map
               ;; ("C-c C-d" . eldoc)
               ("C-c C-e" . eglot-rename)
@@ -903,6 +883,12 @@
   ;; (add-to-list 'eglot-server-programs '(python-mode . ("ruff-lsp" "-stdio" "--linters" "pyflakes,mccabe,pycodestyle,pydocstyle,bandit,black,isort")))
   )
 
+<<<<<<< HEAD
+=======
+
+;; (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+
+>>>>>>> dc01675 (cleanup)
 (use-package isortify
   :hook (python-ts-mode . isortify-mode))
 

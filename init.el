@@ -13,6 +13,27 @@
 (setq org-agenda-span 'month)
 (setq org-agenda-show-all-dates t)
 
+
+(setq org-agenda-custom-commands
+      '(
+	
+	("d" "Demo block agenda"
+	 ((todo "TODO"
+		((org-agenda-overriding-header "TODOS\n------------------------------------------------------------")))
+	  (agenda ""
+		  ((org-agenda-block-separator nil)
+		   (org-agenda-span 90)
+		   (org-deadline-warning-days 0)
+		   (org-agenda-format-date "%-e-%A-%B-%Y")
+		   (org-agenda-skip-deadline-if-done 1)
+		   (org-agenda-skip-timestamp-if-done 1)
+		   (org-agenda-skip-scheduled-if-done 1)
+		   (org-agenda-overriding-header "\nAGENDA\n------------------------------------------------------------"))
+		  )
+	 ))
+	
+	))
+
 ;;;****************************** GENERAL STUFF ******************************
 ;; (setq warning-minimum-level :error)
 
@@ -769,6 +790,9 @@
   (setq-default vterm-buffer-name-string "vterm: %s")
   )
 
+(when (file-exists-p "~/.emacs.d/mylisp/mymodeline.el")
+  (load "~/.emacs.d/mylisp/mymodeline.el"))
+
 ;;;****************************** PYTHON ******************************
 
 ;; (use-package pyvenv
@@ -1219,118 +1243,6 @@ C-e: jump to end of line
 (global-set-key (kbd "C-c d") 'hydra-zoom/body)
 (key-chord-define-global "hh"     'hydra-zoom/body)
 
-(defun avy-action-copy-whole-line (pt)
-  (save-excursion
-    (goto-char pt)
-    (cl-destructuring-bind (start . end)
-        (bounds-of-thing-at-point 'line)
-      (copy-region-as-kill start end)))
-  (select-window
-   (cdr
-    (ring-ref avy-ring 0)))
-  t)
-
-(defun avy-action-yank-whole-line (pt)
-  (avy-action-copy-whole-line pt)
-  (save-excursion (yank))
-  t)
-
-(defun avy-action-kill-whole-line (pt)
-  (goto-char pt)
-  (kill-whole-line)
-  (indent-for-tab-command nil)
-  t)
-
-(defun avy-action-end-of-line (pt)
-  "Goto PT."
-  (let ((frame (window-frame (selected-window))))
-    (unless (equal frame (selected-frame))
-      (select-frame-set-input-focus frame)
-      (raise-frame frame))
-    (goto-char pt)
-    (move-end-of-line nil)
-    ))
-
-(defun avy-action-beginning-of-line (pt)
-  "Goto PT."
-  (let ((frame (window-frame (selected-window))))
-    (unless (equal frame (selected-frame))
-      (select-frame-set-input-focus frame)
-      (raise-frame frame))
-    (goto-char pt)
-    (move-beginning-of-line nil)
-    ))
-
-(defun avy-action-mark-until (pt)
-  "Mark sexp at PT."
-  (set-mark (point))
-  (goto-char pt)
-  (move-end-of-line nil))
-
-(use-package avy
-  :bind (
-	 ;("C-S-a" . 'avy-goto-char-timer)
-	 ; ("C-S-r" . 'avy-copy-region))  ; this will also paste to pt
-	 ("C-S-r" . 'avy-kill-ring-save-region))
-  ;;("C-S-a" . 'avy-goto-char-2)
-  :config
-  ;; (setq avy-keys '(?q ?w ?a ?s ?k ?l ?o ?p))
-  (setq avy-keys '(?q ?r ?u ?o ?p
-                    ?s ?d ?f ?g ?h ?j
-                    ?k ?l ?' ?v ?b
-                    ?n))
-  (setq avy-styles-alist '((avy-goto-char-timer . pre)))
-  (setq avy-timeout-seconds 0.3)
-  (setq avy-background t)
-  ;; (setq avy-dispatch-alist 
-  ;; 	(assq-delete-all ?i avy-dispatch-alist)
-  ;; 	)
-  ;; (setq avy-dispatch-alist 
-  ;; 	(assq-delete-all ?n avy-dispatch-alist)
-  ;; 	)
-  (setq avy-dispatch-alist
-      (dolist (key '(?i ?n ?y ?w ?x ?X ?m ?t ?a ?e ?\s ?\C-w ?C ?z ?Y ?k) avy-dispatch-alist)
-        (setq avy-dispatch-alist (assq-delete-all key avy-dispatch-alist))))
-  (setf  ;; order is important here so dispatch help shows up nicely
-   (alist-get ?\C-w avy-dispatch-alist) 'avy-action-kill-whole-line
-   (alist-get ?Y avy-dispatch-alist) 'avy-action-yank-whole-line
-   (alist-get ?K avy-dispatch-alist) 'avy-action-kill-stay
-   (alist-get ?e avy-dispatch-alist) 'avy-action-end-of-line
-   (alist-get ?\s avy-dispatch-alist) 'avy-action-mark-until  ; space
-   (alist-get ?w avy-dispatch-alist) 'avy-action-copy 
-   (alist-get ?m avy-dispatch-alist) 'avy-action-mark
-   (alist-get ?t avy-dispatch-alist) 'avy-action-teleport
-   (alist-get ?C avy-dispatch-alist) 'avy-action-copy-whole-line
-   (alist-get ?y avy-dispatch-alist) 'avy-action-yank 
-   (alist-get ?k avy-dispatch-alist) 'avy-action-kill-move 
-   (alist-get ?a avy-dispatch-alist) 'avy-action-beg-of-line
-   )
-  )
-
-;; (key-chord-define-global "aa"     'avy-goto-char-timer)
-(key-chord-define-global "pq"     'avy-goto-char-timer)
-
-(defun avy-show-dispatch-help ()  
-  (let* ((len (length "avy-action-"))
-         (fw (frame-width))
-         (raw-strings (mapcar
-                   (lambda (x)
-                     (format "%2s: %-19s"
-                             (propertize
-                              (char-to-string (car x))
-                              'face 'aw-key-face)
-                             (substring (symbol-name (cdr x)) len)))
-                   avy-dispatch-alist))
-         (max-len (1+ (apply #'max (mapcar #'length raw-strings))))
-         (strings-len (length raw-strings))
-         (per-row (floor fw max-len))
-         display-strings)
-    (cl-loop for string in raw-strings
-             for N from 1 to strings-len do
-             (push (concat string " ") display-strings)
-             (when (= (mod N per-row) 0) (push "\n" display-strings)))
-    (message "%s" (apply #'concat (nreverse display-strings)))))
-
 
 (defun my-comment-copy-yank-line-or-region ()
   "Copy the current line or region, comment it out, and yank below."
@@ -1354,6 +1266,11 @@ C-e: jump to end of line
 (global-set-key (kbd "C-M-;") 'my-comment-copy-yank-line-or-region)
 (key-chord-define-global "\'\'" 'my-comment-copy-yank-line-or-region)
 
+(when (file-exists-p "~/.emacs.d/mylisp/myavy.el")
+  (load "~/.emacs.d/mylisp/myavy.el"))
+
+(key-chord-define-global "pq"     'avy-goto-char-timer)
+(global-set-key (kbd "<F8>") 'avy-goto-char-timer)
 
 (defun my-defn-other-window ()
   "Open defn in other window, but also move to top"
@@ -1648,5 +1565,3 @@ C-e: jump to end of line
            :right-fringe-width 20))
   )
 
-(when (file-exists-p "~/.emacs.d/mymodeline.el")
-  (load "~/.emacs.d/mymodeline.el"))

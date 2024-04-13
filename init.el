@@ -136,10 +136,10 @@
 ;; don't show asterix in *bold* in org mode, etc...
 (setq org-hide-emphasis-markers t) 
 
-(global-set-key "\C-cl" 'org-store-link)
-(global-set-key "\C-ca" 'org-agenda)
-(global-set-key "\C-cc" 'org-capture)
-(global-set-key "\C-cb" 'org-iswitchb)
+(define-key global-map (kbd "C-c l") #'org-store-link)
+(define-key global-map (kbd "C-c a") #'org-agenda)
+(define-key global-map (kbd "C-c c") #'org-capture)
+(define-key global-map (kbd "C-c b") #'org-switchb)
 
 ;; Capture templates
 (setq org-capture-templates
@@ -306,8 +306,8 @@
 
 (use-package diminish)
 
-(use-package magit)
-(global-set-key "\C-xg" 'magit-status)
+(use-package magit
+  :bind (("C-x g" . 'magit-status)))
 
 (use-package rainbow-delimiters
   :diminish
@@ -329,9 +329,10 @@
 ;; god-mode
 (defun my-god-mode-update-cursor-type ()
   (setq cursor-type (if (or god-local-mode buffer-read-only) 'bar 'box)))
+
 (use-package god-mode
+  :bind ("<escape>" . 'god-mode-all)
   :config
-  (global-set-key (kbd "<escape>") 'god-mode-all)
   (setq god-exempt-major-modes nil)
   (setq god-exempt-predicates nil)
   (custom-set-faces '(god-mode-lighter ((t (:inherit error)))))
@@ -600,10 +601,8 @@
            (aw-switch-to-window (aw-select nil))
            (call-interactively (symbol-function ',fn)))))))
 
-
 (use-package saveplace
   :init (save-place-mode))
-
 
 (use-package corfu
   ;; Optional customizations
@@ -635,9 +634,7 @@
   (corfu-indexed-mode)
   ;; (corfu-popupinfo-mode)
   (corfu-history-mode)
-  (corfu-echo-mode)
-  )
-
+  (corfu-echo-mode))
 
 ;; SPC as separator  --> So M-SPC for orderless autocomplete
 (setq corfu-separator 32)
@@ -762,10 +759,8 @@
 
 ;; icons----------------------------------------------
 
-
 (use-package transpose-frame
   :bind ("C-S-t" . transpose-frame))
-
 
 (use-package keyfreq
   :config
@@ -792,7 +787,8 @@
 (add-hook 'csv-mode-hook '(lambda () (interactive) (toggle-truncate-lines nil)))
 
 (use-package ace-window
-  :bind (("M-o" . ace-window))
+  :bind (("M-o" . ace-window)
+	 ("<f8>" . ace-window))
   :config
   (setq aw-dispatch-always t)
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
@@ -808,7 +804,6 @@
 (when (file-exists-p "~/.emacs.d/mylisp/mymodeline.el")
   (load "~/.emacs.d/mylisp/mymodeline.el"))
 
-
 (use-package spacious-padding
   :config
   (setq spacious-padding-widths
@@ -821,7 +816,6 @@
            :left-fringe-width 20
            :right-fringe-width 20))
   (spacious-padding-mode 1))
-
 
 ;;;****************************** PYTHON ******************************
 
@@ -1188,7 +1182,7 @@ C-e: jump to end of line
   ("s" isearch-forward-thing-at-point :exit t)
   )
 
-(global-set-key (kbd "C-c d") 'hydra-zoom/body)
+
 
 (defun my-comment-copy-yank-line-or-region ()
   "Copy the current line or region, comment it out, and yank below."
@@ -1209,14 +1203,12 @@ C-e: jump to end of line
     (newline)
     (yank)))
 
-(global-set-key (kbd "C-M-;") 'my-comment-copy-yank-line-or-region)
-
+(define-key global-map (kbd "C-M-;") #'my-comment-copy-yank-line-or-region)
 
 (when (file-exists-p "~/.emacs.d/mylisp/myavy.el")
   (load "~/.emacs.d/mylisp/myavy.el"))
 
-
-(global-set-key (kbd "<F8>") 'avy-goto-char-timer)
+(define-key global-map (kbd "<f8>") #'avy-goto-char-timer)
 
 (defun my-defn-other-window ()
   "Open defn in other window, but also move to top"
@@ -1231,8 +1223,8 @@ C-e: jump to end of line
     (move-cursor-to-top)
     (select-window original-window)
     (goto-char original-point)))
-(global-set-key (kbd "C-x 4 .") 'my-defn-other-window)
 
+(define-key global-map (kbd "C-x 4 .") #'my-defn-other-window)
 
 
 ;; (global-set-key (kbd "M-n") 'my-end-of-par)
@@ -1280,34 +1272,37 @@ C-e: jump to end of line
   (let ((oldpos (point)))
     (end-of-line)
     (newline-and-indent)))
-(global-set-key (kbd "<C-return>") 'newline-without-break-of-line)
+(define-key global-map (kbd "<C-return>") #'newline-without-break-of-line)
+
 
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
 
-(global-set-key (kbd "C-x C-i") (lambda () (interactive) (find-file "~/.emacs.d/init.el")))
+;; (global-set-key (kbd "C-x C-i") (lambda () (interactive) (find-file "~/.emacs.d/init.el")))
+(define-key global-map (kbd "C-x C-i") (lambda () (interactive) (find-file "~/.emacs.d/init.el")))
 
-(global-set-key (kbd "M-[") 'backward-paragraph)
-(global-set-key (kbd "M-]") 'forward-paragraph)
 
-;; (global-set-key (kbd "C-S-s") 'isearch-forward-thing-at-point)
+(define-key global-map (kbd "M-[") #'backward-paragraph)
+(define-key global-map (kbd "M-]") #'forward-paragraph)
+
+(define-key global-map (kbd "C-S-s") #'isearch-forward-thing-at-point)
+
 
 (defun move-cursor-to-top ()
   "Move the display so that the cursor is at the top."
   (interactive)
   (recenter 0))
-(global-set-key (kbd "C-c t") 'move-cursor-to-top)
+(define-key global-map (kbd "C-c t") #'move-cursor-to-top)
 
-					;C-x C-r to revert-buffer
-(global-set-key [(control x) (control r)] 'revert-buffer)
+(define-key global-map (kbd "C-x C-r") #'revert-buffer)
 
 (defun scroll-up-one-line ()
   "Scroll the buffer up one line."
   (interactive)
   (scroll-up 1))
-(global-set-key (kbd "C-}") 'scroll-up-one-line)
-;; (global-set-key (kbd "<end>") 'scroll-up-one-line)
-(global-set-key (kbd "<end>") 'scroll-up-one-line)
+(define-key global-map (kbd "C-}") #'scroll-up-one-line)
+(define-key global-map (kbd "<end>") #'scroll-up-one-line)
+
 
 (defun scroll-down-one-line ()
   "Scroll the buffer up one line."
@@ -1316,13 +1311,12 @@ C-e: jump to end of line
   (scroll-down 1)
   ;; (scroll-lock-mode)
   )
-(global-set-key (kbd "C-{") 'scroll-down-one-line)
-(global-set-key (kbd "<home>") 'scroll-down-one-line)
+(define-key global-map (kbd "C-{") #'scroll-down-one-line)
+(define-key global-map (kbd "<home>") #'scroll-down-one-line)
 
-(global-set-key (kbd "M-m") 'duplicate-dwim) ;; duplicate a line or region
+(define-key global-map (kbd "M-m") #'duplicate-dwim)
 
-
-					;commenting
+;; commenting
 ;; original idea from
 ;; http://www.opensubscriber.com/message/emacs-devel@gnu.org/10971693.html
 (defun comment-dwim-line (&optional arg)
@@ -1335,8 +1329,7 @@ C-e: jump to end of line
   (if (and (not (region-active-p)) (not (looking-at "[ \t]*$")))
       (comment-or-uncomment-region (line-beginning-position) (line-end-position))
     (comment-dwim arg)))
-(global-set-key "\M-;" 'comment-dwim-line)
-
+(define-key global-map (kbd "M-;") #'comment-dwim-line)
 
 
 ;; since tab is used for company, bind ~ to fill in snippets
@@ -1344,9 +1337,8 @@ C-e: jump to end of line
 (define-key yas-minor-mode-map (kbd "TAB") nil)
 (define-key yas-minor-mode-map (kbd "C-~") yas-maybe-expand)
 
-;; (global-set-key (kbd "C-S-f") 'counsel-recentf)
-;; (global-set-key (kbd "C-c f") 'counsel-recentf)
-(global-set-key (kbd "C-S-f") 'consult-recent-file)
+(define-key global-map (kbd "C-S-f") #'consult-recent-file)
+
 
 (defun my-recentf-open-other-window ()
   (interactive)
@@ -1357,7 +1349,8 @@ C-e: jump to end of line
   (windmove-left nil) (setq register-preview-delay 0.5
 			    register-preview-function #'consult-register-format)
   )
-(global-set-key (kbd "C-x 4 C-S-f") 'my-recentf-open-other-window)
+(define-key global-map (kbd "C-x 4 C-S-f") #'my-recentf-open-other-window)
+
 
 ;; Had to download eglot-lsp-booster from here first:
 ;; https://github.com/blahgeek/emacs-lsp-booster?tab=readme-ov-file#obtain-or-build-emacs-lsp-booster
@@ -1393,9 +1386,7 @@ C-e: jump to end of line
   (backward-word nil)
   (kill-word nil))
 
-;; (global-set-key (kbd "M-d") 'my-kill-word)
-(global-set-key (kbd "C-S-d") 'my-kill-word)
-;; (global-set-key (kbd "C-D") 'my-kill-word)
+(define-key global-map (kbd "C-S-d") #'my-kill-word)
 
 (add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
 
@@ -1503,6 +1494,6 @@ C-e: jump to end of line
 (key-chord-define-global "pf" 'consult-project-buffer)
 (key-chord-define-global "hh"     'hydra-zoom/body)
 (key-chord-define-global ";;" 'comment-dwim-line)
+(key-chord-define-global "\'\'" 'my-comment-copy-yank-line-or-region)
 (key-chord-define-global "aa" 'back-to-indentation)
 (key-chord-define-global "pq"     'avy-goto-char-timer)
-(key-chord-define-global "\'\'" 'my-comment-copy-yank-line-or-region)

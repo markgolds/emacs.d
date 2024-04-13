@@ -1,39 +1,17 @@
 ;; -*- lexical-binding: t; outline-regexp: ";;;" -*-
 
-
 (setq calendar-date-style 'iso)
 (setq calendar-time-zone-style 'numeric)
 
 (setq calendar-time-display-form
-        '( 24-hours ":" minutes
-           (when time-zone (format "(%s)" time-zone))))
+      '( 24-hours ":" minutes
+	 (when time-zone (format "(%s)" time-zone))))
 
 (setq org-agenda-start-on-weekday 1)
 (setq calendar-week-start-day 1)
 (setq org-agenda-span 'month)
 (setq org-agenda-show-all-dates t)
 
-
-
-(setq org-agenda-custom-commands
-      '(
-	
-	("d" "Demo block agenda"
-	 ((todo "TODO"
-		((org-agenda-overriding-header "TODOS\n------------------------------------------------------------")))
-	  (agenda ""
-		  ((org-agenda-block-separator nil)
-		   (org-agenda-span 90)
-		   (org-deadline-warning-days 0)
-		   (org-agenda-format-date "%-e-%A-%B-%Y")
-		   (org-agenda-skip-deadline-if-done 1)
-		   (org-agenda-skip-timestamp-if-done 1)
-		   (org-agenda-skip-scheduled-if-done 1)
-		   (org-agenda-overriding-header "\nAGENDA\n------------------------------------------------------------"))
-		  )
-	  ))
-	
-	))
 
 ;;;****************************** GENERAL STUFF ******************************
 ;; (setq warning-minimum-level :error)
@@ -123,12 +101,28 @@
 
 ;;;****************************** ORG STUFF  ******************************
 
+(setq org-agenda-custom-commands
+      '(
+	("d" "My Agenda"
+	 ((todo "TODO"
+		((org-agenda-overriding-header "TODOS\n------------------------------------------------------------")))
+	  (agenda ""
+		  ((org-agenda-block-separator nil)
+		   (org-agenda-span 90)
+		   (org-deadline-warning-days 0)
+		   (org-agenda-format-date "%-e-%A-%B-%Y")
+		   (org-agenda-skip-deadline-if-done 1)
+		   (org-agenda-skip-timestamp-if-done 1)
+		   (org-agenda-skip-scheduled-if-done 1)
+		   (org-agenda-overriding-header "\nAGENDA\n------------------------------------------------------------")))))))
+
+
 ;; Disable line numbers for some modes
 (dolist (mode '(org-mode-hook
-                term-mode-hook
-                shell-mode-hook
-                treemacs-mode-hook
-                eshell-mode-hook))
+		term-mode-hook
+		shell-mode-hook
+		treemacs-mode-hook
+		eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 ;; turn off annoying confirmation requests
@@ -208,8 +202,7 @@
 			"~/Dropbox/org/todos.org"
 			"~/Dropbox/org/timelog.org"
 			"~/Dropbox/org/birthdays.org"
-			"~/Dropbox/org/Ped.org"
-			))
+			"~/Dropbox/org/Ped.org"))
 
 (setq org-todo-keywords
       '((sequence "TODO(t)" "READ" "STUDY" "PAPERS" "CODE" "|" "DONE(d)" "CANCELLED(c)")))
@@ -227,16 +220,12 @@
 (setq org-agenda-sorting-strategy 
       '((agenda todo-state-up time-up)))
 
-
-
-
-
 ;; Turn this off in org mode:
 ;;https://emacs.stackexchange.com/questions/73986/how-do-i-stop-org-babel-from-trying-to-edit-a-source-block-in-a-dedicated-buffer
 ;; electric-indent-mode
 (add-hook 'org-mode-hook
-          (lambda ()
-            (electric-indent-local-mode -1)))
+	  (lambda ()
+	    (electric-indent-local-mode -1)))
 
 (setq org-image-actual-width nil)
 
@@ -245,8 +234,8 @@
   "Takes a multi-line paragraph and makes it into a single line of text."
   (interactive (progn (barf-if-buffer-read-only) '(t)))
   (let ((fill-column (point-max))
-        ;; This would override `fill-column' if it's an integer.
-        (emacs-lisp-docstring-fill-column t))
+	;; This would override `fill-column' if it's an integer.
+	(emacs-lisp-docstring-fill-column t))
     (fill-paragraph nil region)))
 
 ;; Handy key definition
@@ -260,6 +249,44 @@
   ;; settings from above.
   (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components))
 
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   ;; (julia . t)
+   (python . t)
+   ;;   (jupyter . t)
+   ))
+
+;; (defun org-edit-src-code nil)
+
+(defun insert-my-jupyter-block ()
+  "Inserts a custom code block into the Org mode buffer."
+  (interactive)
+  ;; (insert "#+BEGIN_SRC jupyter-python :session py :results scalar :display plain\n")
+  (insert "#+BEGIN_SRC jupyter-python\n")
+  (insert "\n")
+  (insert "#+END_SRC\n")
+  (forward-line -2)
+  (move-end-of-line 1))
+
+;; Create a new jupyter block with C-c p
+(eval-after-load 'org
+  '(define-key org-mode-map (kbd "C-c p") 'insert-my-jupyter-block))
+
+;; Make org headers smaller
+(defun my-org-customize-font ()
+  "Customize font size for Org mode lines starting with #+."
+  (setq-local face-remapping-alist
+              '((org-meta-line . (:height 0.6))
+                (org-block-begin-line . (:height 0.6))
+                (org-block-end-line . (:height 0.6)))))
+
+(add-hook 'org-mode-hook 'my-org-customize-font)
+
+;; (setq org-src-preserve-indentation nil)
+
+;; (setq org-src-tab-acts-natively t)
+
 ;;;****************************** MAIN PACKAGES ******************************;;
 
 ;; ediff
@@ -269,6 +296,8 @@
 (setq ediff-show-clashes-only t)
 (setq ediff-split-window-function 'split-window-horizontally)
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+
+(use-package aggressive-indent)
 
 (use-package markdown-mode)
 
@@ -295,9 +324,7 @@
   :config
   (setq yas-snippet-dirs
 	'("~/.emacs.d/snippets"                 ;; personal snippets
-	  "~/.emacs.d/elpa/yasnippet-snippets-20240221.1621/snippets"
-          ))
-  )
+	  )))
 
 ;; god-mode
 (defun my-god-mode-update-cursor-type ()
@@ -307,15 +334,13 @@
   (global-set-key (kbd "<escape>") 'god-mode-all)
   (setq god-exempt-major-modes nil)
   (setq god-exempt-predicates nil)
-  (custom-set-faces
-   '(god-mode-lighter ((t (:inherit error)))))
+  (custom-set-faces '(god-mode-lighter ((t (:inherit error)))))
   (add-hook 'post-command-hook #'my-god-mode-update-cursor-type))
 ;; end god-mode
 
 (use-package drag-stuff
   :diminish
-  :bind (
-	 ("M-<up>" . 'drag-stuff-up)
+  :bind (("M-<up>" . 'drag-stuff-up)
 	 ("M-<down>" . 'drag-stuff-down))
   :config (drag-stuff-global-mode 1)
   )
@@ -371,8 +396,9 @@
 
 ;; Enable vertico
 (use-package vertico
-  :straight (vertico :files (:defaults "extensions/*")
-                     :includes (vertico-indexed vertico-multiform vertico-directory vertico-quick))
+  :straight (vertico
+	     :files (:defaults "extensions/*")
+             :includes (vertico-indexed vertico-multiform vertico-directory vertico-quick))
   :init
   (vertico-mode)
   (vertico-indexed-mode)
@@ -402,11 +428,12 @@
 	("M-q" . #'vertico-quick-insert)
 	("C-q" . #'vertico-quick-insert)
 	)
+  :config 
   ;; Different scroll margin
-  ;; (setq vertico-scroll-margin 0)
+  (setq vertico-scroll-margin 0)
   
   ;; Show more candidates
-  ;; (setq vertico-count 20)
+  (setq vertico-count 5)
   
   ;; Grow and shrink the Vertico minibuffer
   ;; (setq vertico-resize t)
@@ -427,11 +454,11 @@
   ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
   (defun crm-indicator (args)
     (cons (format "[CRM%s] %s"
-                  (replace-regexp-in-string
-                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-                   crm-separator)
-                  (car args))
-          (cdr args)))
+		  (replace-regexp-in-string
+		   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+		   crm-separator)
+		  (car args))
+	  (cdr args)))
   (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
   
   ;; Do not allow the cursor in the minibuffer prompt
@@ -453,17 +480,8 @@
   ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
   ;; available in the *Completions* buffer, add it to the
   ;; `completion-list-mode-map'.
-  :bind (:map minibuffer-local-map
-              ("M-A" . marginalia-cycle))
-  
-  
-  ;; The :init section is always executed.
-  :init
-  
-  ;; Marginalia must be activated in the :init section of use-package such that
-  ;; the mode gets enabled right away. Note that this forces loading the
-  ;; package.
-  (marginalia-mode))
+  :bind (:map minibuffer-local-map ("M-A" . marginalia-cycle))
+  :init (marginalia-mode))
 
 ;;------------------------------CONSULT------------------------------
 (use-package consult
@@ -514,8 +532,8 @@
          :map isearch-mode-map
          ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
          ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ("M-s l" . consult-line)                  ;; for consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; for consult-line to detect isearch
          ;; Minibuffer history
          :map minibuffer-local-map
          ("M-s" . consult-history)                 ;; orig. next-matching-history-element
@@ -524,13 +542,11 @@
   (setq register-preview-delay 0.5
         register-preview-function #'consult-register-format)
   :config
-  (setq consult-grep-args '("grep"
-			    ;; (consult--grep-exclude-args)  ; this is default, but makes it hard to add options in searches
-			    "--null --line-buffered --color=never --ignore-case     --with-filename --line-number -I -r"))
-  )
-
-(use-package key-chord)
-(key-chord-define-global "pf" 'consult-project-buffer)
+  (setq consult-grep-args
+	'("grep"
+	  ;; this is default, but makes it hard to add options in searches
+	  ;; (consult--grep-exclude-args)  
+	  "--null --line-buffered --color=never --ignore-case --with-filename --line-number -I -r")))
 
 (use-package orderless
   :ensure t
@@ -832,8 +848,6 @@
 ;;   ;; 	      )
 ;;   )
 
-
-
 ;; (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
 (setq major-mode-remap-alist
       '((python-mode . python-ts-mode)))
@@ -842,29 +856,6 @@
 ;; (with-eval-after-load 'eglot
 ;;   (add-to-list 'eglot-server-programs
 ;;                '(python-mode . ("ruff-lsp"))))
-
-
-;; settings: https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings
-(use-package dape
-  :after eglot
-  :config
-  ;; (setq dape-buffer-window-arrangement 'right)
-  ;; (setq dape-buffer-window-arrangement 'gud)
-  ;; (setq dape-buffer-window-arrangement 'left)
-  ;; (setq dape-info-buffer-window-groups nil)  ;; only repl, remove for all windows
-  (add-to-list 'dape-configs
-	       `(debugpy
-		 modes (python-ts-mode python-mode)
-		 command "python"
-		 command-args ("-m" "debugpy.adapter")
-		 :type "executable"
-		 :request "launch"
-		 :cwd dape-cwd-fn
-		 :program dape-buffer-default
-		 :redirectOutput t  ; fixes double prints?
-		 )
-	       ))
-
 
 (use-package flymake-ruff
   :straight (flymake-ruff :type git :host nil :repo "https://github.com/erickgnavar/flymake-ruff")
@@ -964,20 +955,25 @@
 ;; (setq realgud--ipdb-command-name "ipdb3")  
 ;;  )
 
-
-(defun efs/configure-eshell ()
-  ;; Save command history when commands are entered
-  (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
-  
-  ;; Truncate buffer for performance
-  (add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
-  
-  (setq eshell-history-size         10000
-        eshell-buffer-maximum-lines 10000
-        eshell-hist-ignoredups t
-        eshell-scroll-to-bottom-on-input t))
-
-
+;; settings: https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings
+(use-package dape
+  :after eglot
+  :config
+  ;; (setq dape-buffer-window-arrangement 'right)
+  ;; (setq dape-buffer-window-arrangement 'gud)
+  ;; (setq dape-buffer-window-arrangement 'left)
+  ;; (setq dape-info-buffer-window-groups nil)  ;; only repl, remove for all windows
+  (add-to-list 'dape-configs
+	       `(debugpy
+		 modes (python-ts-mode python-mode)
+		 command "python"
+		 command-args ("-m" "debugpy.adapter")
+		 :type "executable"
+		 :request "launch"
+		 :cwd dape-cwd-fn
+		 :program dape-buffer-default
+		 :redirectOutput t  ; fixes double prints?
+		 )))
 
 ;; (use-package jupyter)
 ;; (use-package zmq)
@@ -995,49 +991,6 @@
 ;;     ;; Overriding other minor mode bindings requires some insistence...
 ;;     (define-key map [remap jupyter-eval-line-or-region] 'code-cells-eval)))
 ;; (add-hook 'python-mode-hook 'code-cells-mode-maybe)
-
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((emacs-lisp . t)
-   ;; (julia . t)
-   (python . t)
-   ;;   (jupyter . t)
-   ))
-
-;; (defun org-edit-src-code nil)
-
-
-(defun insert-my-jupyter-block ()
-  "Inserts a custom code block into the Org mode buffer."
-  (interactive)
-  ;; (insert "#+BEGIN_SRC jupyter-python :session py :results scalar :display plain\n")
-  (insert "#+BEGIN_SRC jupyter-python\n")
-  (insert "\n")
-  (insert "#+END_SRC\n")
-  (forward-line -2)
-  (move-end-of-line 1))
-
-
-;; Create a new jupyter block with C-c p
-(eval-after-load 'org
-  '(define-key org-mode-map (kbd "C-c p") 'insert-my-jupyter-block))
-
-(eval-after-load 'org
-  '(define-key org-mode-map (kbd "C-<tab>") 'company-complete))
-
-;; Make org headers smaller
-(defun my-org-customize-font ()
-  "Customize font size for Org mode lines starting with #+."
-  (setq-local face-remapping-alist
-              '((org-meta-line . (:height 0.6))
-                (org-block-begin-line . (:height 0.6))
-                (org-block-end-line . (:height 0.6)))))
-
-(add-hook 'org-mode-hook 'my-org-customize-font)
-
-;; (setq org-src-preserve-indentation nil)
-
-;; (setq org-src-tab-acts-natively t)
 
 ;; (defun gm/jupyter-eval-region (beg end)
 ;;   (jupyter-eval-region nil beg end))
@@ -1192,10 +1145,7 @@
 
 ;;;****************************** MY KEY BINDINGS ******************************
 
-(global-set-key [remap zap-to-char] 'zap-up-to-char)
-
-(use-package key-chord)
-(key-chord-mode 1)
+(define-key global-map [remap zap-to-char] #'zap-up-to-char)
 
 (define-key dired-mode-map (kbd "C-c w") 'wdired-change-to-wdired-mode)
 
@@ -1239,13 +1189,11 @@ C-e: jump to end of line
   )
 
 (global-set-key (kbd "C-c d") 'hydra-zoom/body)
-(key-chord-define-global "hh"     'hydra-zoom/body)
-
 
 (defun my-comment-copy-yank-line-or-region ()
   "Copy the current line or region, comment it out, and yank below."
   (interactive)
-  ; hack to make sure region begins at beg. of line
+					; hack to make sure region begins at beg. of line
   (if (region-active-p) (if (< (point) (mark)) (exchange-point-and-mark)))
   (if (region-active-p)  
       (progn (exchange-point-and-mark)
@@ -1262,12 +1210,12 @@ C-e: jump to end of line
     (yank)))
 
 (global-set-key (kbd "C-M-;") 'my-comment-copy-yank-line-or-region)
-(key-chord-define-global "\'\'" 'my-comment-copy-yank-line-or-region)
+
 
 (when (file-exists-p "~/.emacs.d/mylisp/myavy.el")
   (load "~/.emacs.d/mylisp/myavy.el"))
 
-(key-chord-define-global "pq"     'avy-goto-char-timer)
+
 (global-set-key (kbd "<F8>") 'avy-goto-char-timer)
 
 (defun my-defn-other-window ()
@@ -1322,7 +1270,7 @@ C-e: jump to end of line
 ;; (global-set-key (kbd "C-S-a") 'back-to-indentation)
 ;; (global-set-key (kbd "C-a") 'back-to-indentation)
 ;; (global-set-key (kbd "C-a") 'beginning-of-line)  ; default binding
-(key-chord-define-global "aa" 'back-to-indentation)
+
 
 ;; newline-without-break-of-line
 (defun newline-without-break-of-line ()
@@ -1388,7 +1336,7 @@ C-e: jump to end of line
       (comment-or-uncomment-region (line-beginning-position) (line-end-position))
     (comment-dwim arg)))
 (global-set-key "\M-;" 'comment-dwim-line)
-(key-chord-define-global ";;" 'comment-dwim-line)
+
 
 
 ;; since tab is used for company, bind ~ to fill in snippets
@@ -1550,6 +1498,11 @@ C-e: jump to end of line
 ;;           ("^[^ \t\n]+:.*" . font-lock-string-face)
 ;;           ("^\\[[1-9][0-9]*\\]" . font-lock-constant-face)))
 
-
-
-(setq column-number-mode t)
+(use-package key-chord)
+(key-chord-mode 1)
+(key-chord-define-global "pf" 'consult-project-buffer)
+(key-chord-define-global "hh"     'hydra-zoom/body)
+(key-chord-define-global ";;" 'comment-dwim-line)
+(key-chord-define-global "aa" 'back-to-indentation)
+(key-chord-define-global "pq"     'avy-goto-char-timer)
+(key-chord-define-global "\'\'" 'my-comment-copy-yank-line-or-region)

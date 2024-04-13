@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; outline-regexp: ";;;" -*-
 
 (defcustom my-modeline-string-truncate-length 9
   "String length after which truncation should be done in small windows."

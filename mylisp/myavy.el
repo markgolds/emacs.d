@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t; outline-regexp: ";;;" -*-
+
 (defun avy-action-copy-whole-line (pt)
   (save-excursion
     (goto-char pt)

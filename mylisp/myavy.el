@@ -30,7 +30,7 @@
     (move-end-of-line nil)
     ))
 
-(defun avy-action-beginning-of-line (pt)
+(defun avy-action-beg-of-line (pt)
   "Goto PT."
   (let ((frame (window-frame (selected-window))))
     (unless (equal frame (selected-frame))

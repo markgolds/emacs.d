@@ -817,6 +817,15 @@
            :right-fringe-width 20))
   (spacious-padding-mode 1))
 
+(use-package elfeed
+  :config
+  (setq ;;elfeed-search-feed-face ":foreground #ffffff :weight bold"
+   elfeed-feeds (quote
+		 (("https://hnrss.org/frontpage" hackernews)
+		  ("https://www.reddit.com/r/emacs.rss" emacs reddit)
+		  ("https://www.reddit.com/r/montreal.rss" montreal reddit)
+		  ))))
+
 ;;;****************************** PYTHON ******************************
 
 ;; (use-package pyvenv
@@ -1006,16 +1015,6 @@
 (setq python-shell-interpreter "ipython"
       python-shell-interpreter-args "-i --simple-prompt --InteractiveShell.display_page=True")
 
-(use-package elfeed
-  :config
-  (setq ;;elfeed-search-feed-face ":foreground #ffffff :weight bold"
-   elfeed-feeds (quote
-		 (("https://hnrss.org/frontpage" hackernews)
-		  ("https://www.reddit.com/r/emacs.rss" emacs reddit)
-		  ("https://www.reddit.com/r/montreal.rss" montreal reddit)
-		  ))))
-
-
 ;;;****************************** STYLE ******************************
 
 
@@ -1055,25 +1054,11 @@
 (use-package modus-themes
   :config
   ;; Add all your customizations prior to loading the themes
-  (setq
-   modus-themes-italic-constructs t
-   modus-themes-bold-constructs nil
-   ;; modus-themes-slanted-constructs t
-   )
-
-  ;; (set-face-attribute 'default nil :family "Fira Code" :height 100)
-  ;; (set-face-attribute 'italic nil :family "Hack")
-  ;; (set-face-attribute 'bold nil :family "Hack")
-
-  ;; Remove the border
-  (setq modus-themes-common-palette-overrides
-	'((border-mode-line-active unspecified)
-          (border-mode-line-inactive unspecified)))
-
+  (setq modus-themes-italic-constructs nil
+	modus-themes-bold-constructs t
+	modus-themes-slanted-constructs nil)
   (setq modus-themes-to-toggle '(modus-vivendi-tinted modus-operandi-tinted))
-
   (load-theme 'modus-operandi-tinted t)
-
   (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
 
 ;; use-package with package.el:

@@ -601,9 +601,6 @@
            (aw-switch-to-window (aw-select nil))
            (call-interactively (symbol-function ',fn)))))))
 
-(use-package saveplace
-  :init (save-place-mode))
-
 (use-package corfu
   ;; Optional customizations
   :custom
@@ -788,6 +785,9 @@
 
 (use-package ace-window
   :bind (("M-o" . ace-window)
+	 ("C-c o" . ace-window)
+	 ("C-c d" . ace-delete-window)
+	 ("C-c s" . ace-swap-window)
 	 ("<f9>" . ace-window))
   :config
   (setq aw-dispatch-always t)
@@ -825,6 +825,19 @@
 		  ("https://www.reddit.com/r/emacs.rss" emacs reddit)
 		  ("https://www.reddit.com/r/montreal.rss" montreal reddit)
 		  ))))
+
+;; When several buffers visit identically-named files
+(require 'uniquify) (setq uniquify-buffer-name-style 'forward)
+
+;; highlight lines
+(use-package hl-line
+  :ensure t
+  :hook ((after-init . global-hl-line-mode)
+         (vterm-mode . (lambda () (setq-local global-hl-line-mode nil)))))
+
+;; Remeber last location in buffers
+(use-package saveplace
+  :init (save-place-mode))
 
 ;;;****************************** PYTHON ******************************
 
@@ -911,6 +924,16 @@
   ;; (add-to-list 'eglot-server-programs '(python-mode . ("pyright-langserver" "--stdio")))
   ;; (add-to-list 'eglot-server-programs '(python-mode . ("ruff-lsp" "-stdio" "--linters" "pyflakes,mccabe,pycodestyle,pydocstyle,bandit,black,isort")))
   )
+
+;; Had to download eglot-lsp-booster from here first:
+;; https://github.com/blahgeek/emacs-lsp-booster?tab=readme-ov-file#obtain-or-build-emacs-lsp-booster
+;; Then "mv emacs-lsp-booster ~/.local/bin/"
+(use-package eglot-booster
+  :ensure t
+  :straight (:type git :host github :repo "joaotavora/eglot-booster")
+  :after eglot
+  :config
+  (eglot-booster-mode))
 
 (use-package isortify
   :hook (python-ts-mode . isortify-mode))
@@ -1205,18 +1228,12 @@
 (add-hook 'python-ts-mode-hook
           (lambda () (local-set-key (kbd "M-n") 'python-nav-forward-block)))
 
-(defun my-test ()  
-  (interactive)
-  (set-mark-command nil)
-  (python-nav-end-of-block)
-  (my-copy-comment-and-paste-region)
-  (message "boom"))
+
 ;; (global-set-key (kbd "M-n") '('set-mark-command 'my-end-of-par 'my-copy-comment-and-paste-region))
 
 ;; (global-set-key (kbd "C-S-a") 'back-to-indentation)
 ;; (global-set-key (kbd "C-a") 'back-to-indentation)
 ;; (global-set-key (kbd "C-a") 'beginning-of-line)  ; default binding
-
 
 ;; newline-without-break-of-line
 (defun newline-without-break-of-line ()
@@ -1232,15 +1249,12 @@
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
 
-;; (global-set-key (kbd "C-x C-i") (lambda () (interactive) (find-file "~/.emacs.d/init.el")))
 (define-key global-map (kbd "C-x C-i") (lambda () (interactive) (find-file "~/.emacs.d/init.el")))
-
 
 (define-key global-map (kbd "M-[") #'backward-paragraph)
 (define-key global-map (kbd "M-]") #'forward-paragraph)
 
 (define-key global-map (kbd "C-S-s") #'isearch-forward-thing-at-point)
-
 
 (defun move-cursor-to-top ()
   "Move the display so that the cursor is at the top."
@@ -1293,7 +1307,6 @@
 
 (define-key global-map (kbd "C-S-f") #'consult-recent-file)
 
-
 (defun my-recentf-open-other-window ()
   (interactive)
   (split-window-right)
@@ -1305,16 +1318,6 @@
   )
 (define-key global-map (kbd "C-x 4 C-S-f") #'my-recentf-open-other-window)
 
-
-;; Had to download eglot-lsp-booster from here first:
-;; https://github.com/blahgeek/emacs-lsp-booster?tab=readme-ov-file#obtain-or-build-emacs-lsp-booster
-;; Then "mv emacs-lsp-booster ~/.local/bin/"
-(use-package eglot-booster
-  :ensure t
-  :straight (:type git :host github :repo "joaotavora/eglot-booster")
-  :after eglot
-  :config
-  (eglot-booster-mode))
 
 ;; (use-package company-box
 ;;   :hook (company-mode . company-box-mode)
@@ -1343,25 +1346,6 @@
 (define-key global-map (kbd "C-S-d") #'my-kill-word)
 
 (add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
-
-
-
-(require 'uniquify) (setq uniquify-buffer-name-style 'forward)
-
-;; (use-package projectile
-;;   :diminish projectile-mode
-;;   :config (projectile-mode)
-;;   :custom ((projectile-completion-system 'ivy)))
-;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-
-
-;; (global-hl-line-mode t)  ;; highlight line
-;; (global-hl-line-mode 0)
-(use-package hl-line
-  :ensure t
-  :hook ((after-init . global-hl-line-mode)
-         (vterm-mode . (lambda () (setq-local global-hl-line-mode nil)))))
-
 
 (defvar +vertico-transform-functions nil)
 
@@ -1400,48 +1384,8 @@
                ;; reverse
                (+vertico-transform-functions . +vertico-highlight-enabled-mode)))
 
-
-;; ;; https://github.com/minad/corfu/wiki :
-;; ;; Option 1: Specify explicitly to use Orderless for Eglot
-;; (setq completion-category-overrides '((eglot (styles orderless))
-;;                                       (eglot-capf (styles orderless))))
-
-;; ;; Option 2: Undo the Eglot modification of completion-category-defaults
-;; ;; (with-eval-after-load 'eglot
-;;    ;; (setq completion-category-defaults nil))
-
-;; ;; Enable cache busting, depending on if your server returns
-;; ;; sufficiently many candidates in the first place.
-;; (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
-
-
 ;; (desktop-save-mode 1)
 
-
-
-
-;; (setq shell-command-prompt-show-cwd t) ; Emacs 27.1
-;;   (setq ansi-color-for-comint-mode t)
-;;   (setq shell-input-autoexpand 'input)
-;;   (setq shell-highlight-undef-enable t) ; Emacs 29.1
-;;   (setq shell-has-auto-cd nil) ; Emacs 29.1
-;;   ;; (setq shell-get-old-input-include-continuation-lines t) ; Emacs 30.1
-;;   (setq shell-kill-buffer-on-exit t) ; Emacs 29.1
-;;   (setq shell-completion-fignore '("~" "#" "%"))
-;;   (setq-default comint-scroll-to-bottom-on-input t)
-;;   (setq-default comint-scroll-to-bottom-on-output nil)
-;;   (setq-default comint-input-autoexpand 'input)
-;;   (setq comint-prompt-read-only t)
-;;   (setq comint-buffer-maximum-size 9999)
-;;   (setq comint-completion-autolist t)
-;;   (setq comint-input-ignoredups t)
-;;   (setq tramp-default-remote-shell "/bin/bash")
-
-
-;;   (setq shell-font-lock-keywords
-;;         '(("[ \t]\\([+-][^ \t\n]+\\)" 1 font-lock-builtin-face)
-;;           ("^[^ \t\n]+:.*" . font-lock-string-face)
-;;           ("^\\[[1-9][0-9]*\\]" . font-lock-constant-face)))
 
 (use-package key-chord)
 (key-chord-mode 1)

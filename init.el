@@ -14,6 +14,7 @@
 (setq org-agenda-show-all-dates t)
 
 
+
 (setq org-agenda-custom-commands
       '(
 	
@@ -30,7 +31,7 @@
 		   (org-agenda-skip-scheduled-if-done 1)
 		   (org-agenda-overriding-header "\nAGENDA\n------------------------------------------------------------"))
 		  )
-	 ))
+	  ))
 	
 	))
 
@@ -774,14 +775,12 @@
 (add-hook 'csv-mode-hook 'csv-align-mode)
 (add-hook 'csv-mode-hook '(lambda () (interactive) (toggle-truncate-lines nil)))
 
-
 (use-package ace-window
   :bind (("M-o" . ace-window))
   :config
   (setq aw-dispatch-always t)
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   )
-
 
 (use-package vterm
   :config
@@ -792,6 +791,21 @@
 
 (when (file-exists-p "~/.emacs.d/mylisp/mymodeline.el")
   (load "~/.emacs.d/mylisp/mymodeline.el"))
+
+
+(use-package spacious-padding
+  :config
+  (setq spacious-padding-widths
+        '( :internal-border-width 15
+           :header-line-width 4
+           :mode-line-width 6
+           :tab-width 4
+           :right-divider-width 1
+           :scroll-bar-width 0
+           :left-fringe-width 20
+           :right-fringe-width 20))
+  (spacious-padding-mode 1))
+
 
 ;;;****************************** PYTHON ******************************
 
@@ -951,20 +965,6 @@
 ;;  )
 
 
-;; (use-package doom-themes
-;;   :config
-;;   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-;; 	doom-themes-enable-italic t) ; if nil, italics is universally disabled
-;;   ;; (load-theme 'doom-material-dark t)
-;;   (load-theme 'doom-tomorrow-night t)
-;;   ;; Enable flashing mode-line on errors
-;;   (doom-themes-visual-bell-config)
-;;   ;; Corrects (and improves) org-mode's native fontification.
-;;   (doom-themes-org-config)
-;;   ;; (load-theme 'doom-sourcerer)
-;;   ;; (load-theme 'doom-one)
-;;   )
-
 (defun efs/configure-eshell ()
   ;; Save command history when commands are entered
   (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
@@ -1092,44 +1092,42 @@
 ;; (set-frame-font "Menlo:pixelsize=13")
 ;; (set-frame-font "Inconsolata:pixelsize=15")
 
-(use-package ef-themes
-  :ensure t
-  :bind
-  ("<f5>" . ef-themes-toggle)
-  :custom
-  (ef-themes-to-toggle '(ef-elea-dark ef-spring))
-  ;; (ef-themes-variable-pitch-ui t)
-  (ef-themes-mixed-fonts t)
-  (ef-themes-headings '((0 1.4) (1 1.3) (2 1.2) (3 1.1)))
-  :init
-  (load-theme (if (display-graphic-p) 'ef-spring 'ef-symbiosis) t))
+;; (use-package ef-themes
+;;   :ensure t
+;;   :bind
+;;   ("<f5>" . ef-themes-toggle)
+;;   :custom
+;;   (ef-themes-to-toggle '(ef-elea-dark ef-spring))
+;;   ;; (ef-themes-variable-pitch-ui t)
+;;   (ef-themes-mixed-fonts t)
+;;   (ef-themes-headings '((0 1.4) (1 1.3) (2 1.2) (3 1.1)))
+;;   :init
+;;   (load-theme (if (display-graphic-p) 'ef-spring 'ef-symbiosis) t))
 
 
-;; (use-package modus-themes
-;;   :config
-;;   ;; Add all your customizations prior to loading the themes
-;;   (setq
-;;    modus-themes-italic-constructs t
-;;    modus-themes-bold-constructs nil
-;;    ;; modus-themes-slanted-constructs t
-;;    )
+(use-package modus-themes
+  :config
+  ;; Add all your customizations prior to loading the themes
+  (setq
+   modus-themes-italic-constructs t
+   modus-themes-bold-constructs nil
+   ;; modus-themes-slanted-constructs t
+   )
 
-;;   ;; (set-face-attribute 'default nil :family "Fira Code" :height 100)
-;;   ;; (set-face-attribute 'italic nil :family "Hack")
-;;   ;; (set-face-attribute 'bold nil :family "Hack")
+  ;; (set-face-attribute 'default nil :family "Fira Code" :height 100)
+  ;; (set-face-attribute 'italic nil :family "Hack")
+  ;; (set-face-attribute 'bold nil :family "Hack")
 
-;;   ;; Remove the border
-;;   (setq modus-themes-common-palette-overrides
-;; 	'((border-mode-line-active unspecified)
-;;           (border-mode-line-inactive unspecified)))
+  ;; Remove the border
+  (setq modus-themes-common-palette-overrides
+	'((border-mode-line-active unspecified)
+          (border-mode-line-inactive unspecified)))
 
-;;   (setq modus-themes-to-toggle '(modus-vivendi-deuteranopia modus-operandi-deuteranopia))
+  (setq modus-themes-to-toggle '(modus-vivendi-tinted modus-operandi-tinted))
 
-;;   ;; (load-theme 'modus-vivendi-tritanopia t) ;; sort of cherry
-;;   (load-theme 'modus-vivendi-deuteranopia t) ;; purplisha
-;;   ;; (load-theme 'modus-vivendi t)  	;; also purplish, more black
+  (load-theme 'modus-operandi-tinted t)
 
-;;   (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
+  (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
 
 ;; use-package with package.el:
 ;; (use-package dashboard
@@ -1552,16 +1550,6 @@ C-e: jump to end of line
 ;;           ("^[^ \t\n]+:.*" . font-lock-string-face)
 ;;           ("^\\[[1-9][0-9]*\\]" . font-lock-constant-face)))
 
-(use-package spacious-padding
-  :config (spacious-padding-mode 1)
-  (setq spacious-padding-widths
-        '( :internal-border-width 15
-           :header-line-width 4
-           :mode-line-width 6
-           :tab-width 4
-           :right-divider-width 1
-           :scroll-bar-width 0
-           :left-fringe-width 20
-           :right-fringe-width 20))
-  )
 
+
+(setq column-number-mode t)

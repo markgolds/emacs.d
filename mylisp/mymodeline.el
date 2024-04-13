@@ -159,6 +159,8 @@ package).")
 		"  "
 		my-modeline-major-mode
 		"  "
+		my-modeline-linenum
+		"  "
 		my-modeline-eglot
 		"  "
 		my-modeline-flymake
@@ -210,6 +212,14 @@ Specific to the current window's mode line.")
                     'mouse-face 'mode-line-highlight)))
   "Mode line construct for showing remote file name.")
 
+(defvar-local my-modeline-linenum
+  '(:eval
+    (when t
+	;; (and (mode-line-window-selected-p)
+        ;;        line-number-mode)
+      (propertize (format "L:%d" (line-number-at-pos))
+                  'face 'italic)))
+  "Mode line construct for showing line number.")
 
 
 (defvar-local my-modeline-buffer-name
@@ -412,15 +422,7 @@ Specific to the current window's mode line.")
 Specific to the current window's mode line.")
 
 
-(put 'my-modeline-buffer-name 'risky-local-variable t)
-(put 'my-modeline-major-mode 'risky-local-variable t)
-(put 'my-modeline-eglot 'risky-local-variable t)
-(put 'my-modeline-flymake 'risky-local-variable t)
-(put 'my-modeline-vc-branch 'risky-local-variable t)
-(put 'my-modeline-kbd-macro 'risky-local-variable t)
-(put 'my-modeline-buffer-status 'risky-local-variable t)
-(put 'my-modeline-misc-info 'risky-local-variable t)
-(put 'my-modeline-god 'risky-local-variable t)
+
 
 ;;;; Common helper functions
 (defun my-modeline--string-truncate-p (str)
@@ -495,5 +497,15 @@ Check if the `window-width' is less than `split-width-threshold'."
   (and (numberp split-width-threshold)
        (< (window-total-width) split-width-threshold)))
 
+(put 'my-modeline-buffer-name 'risky-local-variable t)
+(put 'my-modeline-major-mode 'risky-local-variable t)
+(put 'my-modeline-eglot 'risky-local-variable t)
+(put 'my-modeline-flymake 'risky-local-variable t)
+(put 'my-modeline-vc-branch 'risky-local-variable t)
+(put 'my-modeline-kbd-macro 'risky-local-variable t)
+(put 'my-modeline-buffer-status 'risky-local-variable t)
+(put 'my-modeline-misc-info 'risky-local-variable t)
+(put 'my-modeline-god 'risky-local-variable t)
+(put 'my-modeline-linenum 'risky-local-variable t)
 
 (provide 'mymodeline)

@@ -229,18 +229,6 @@
 
 (setq org-image-actual-width nil)
 
-;; Stefan Monnier <foo at acm.org>. It is the opposite of fill-paragraph    
-(defun unfill-paragraph (&optional region)
-  "Takes a multi-line paragraph and makes it into a single line of text."
-  (interactive (progn (barf-if-buffer-read-only) '(t)))
-  (let ((fill-column (point-max))
-	;; This would override `fill-column' if it's an integer.
-	(emacs-lisp-docstring-fill-column t))
-    (fill-paragraph nil region)))
-
-;; Handy key definition
-(define-key global-map "\M-Q" 'unfill-paragraph)
-
 (with-eval-after-load 'org
   ;; Allow multiple line Org emphasis markup.
   ;; http://emacs.stackexchange.com/a/13828/115
@@ -1172,6 +1160,17 @@
 (add-hook 'python-ts-mode-hook
           (lambda () (local-set-key (kbd "M-n") 'python-nav-forward-block)))
 
+;; Stefan Monnier <foo at acm.org>. It is the opposite of fill-paragraph    
+(defun unfill-paragraph (&optional region)
+  "Takes a multi-line paragraph and makes it into a single line of text."
+  (interactive (progn (barf-if-buffer-read-only) '(t)))
+  (let ((fill-column (point-max))
+	;; This would override `fill-column' if it's an integer.
+	(emacs-lisp-docstring-fill-column t))
+    (fill-paragraph nil region)))
+
+;; Handy key definition
+(define-key global-map "\M-Q" 'unfill-paragraph)
 
 ;; (global-set-key (kbd "M-n") '('set-mark-command 'my-end-of-par 'my-copy-comment-and-paste-region))
 

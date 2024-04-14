@@ -1180,6 +1180,8 @@
 
 (define-key dired-mode-map (kbd "C-c w") 'wdired-change-to-wdired-mode)
 
+(define-key global-map (kbd "C-c C-q") 'restart-emacs)
+
 ;; C-w to kill a line
 ;; M-w to copy a line
 (use-package whole-line-or-region

@@ -110,7 +110,7 @@
   ;; (setq avy-keys '(?q ?w ?a ?s ?k ?l ?o ?p))
   (setq avy-keys '(?q ?r ?u ?o ?p
                     ?s ?d ?f ?g ?h ?j
-                    ?k ?l ?v ?b
+                    ?l ?v ?b
                     ?n))
   (setq avy-styles-alist '((avy-goto-char-timer . pre)))
   (setq avy-timeout-seconds 0.3)

@@ -15,7 +15,7 @@
    :height 2.0)
   (setq
    aw-background nil
-   aw-keys '(?a ?p ?w ?o ?e ?l)
+   aw-keys '(?w ?p ?a ?o ?e ?l)
    ;; When there are only two windows present,
    ;; "other-window" is called (unless aw-dispatch-always is set non-nil)
    aw-dispatch-always t

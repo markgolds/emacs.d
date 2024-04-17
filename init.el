@@ -1039,7 +1039,7 @@
   (interactive)
   (scroll-up 1))
 (define-key global-map (kbd "C-}") #'scroll-up-one-line)
-(define-key global-map (kbd "<end>") #'scroll-up-one-line)
+(define-key global-map (kbd "C-<end>") #'scroll-up-one-line)
 
 
 (defun scroll-down-one-line ()
@@ -1050,7 +1050,7 @@
   ;; (scroll-lock-mode)
   )
 (define-key global-map (kbd "C-{") #'scroll-down-one-line)
-(define-key global-map (kbd "<home>") #'scroll-down-one-line)
+(define-key global-map (kbd "C-<home>") #'scroll-down-one-line)
 
 (define-key global-map (kbd "M-m") #'duplicate-dwim)
 

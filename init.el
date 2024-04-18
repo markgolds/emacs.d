@@ -1089,25 +1089,6 @@
 (define-key global-map (kbd "C-x 4 C-S-f") #'my-recentf-open-other-window)
 
 
-;; (use-package company-box
-;;   :hook (company-mode . company-box-mode)
-;;   ;; :config (setq company-box-doc-frame-parameters ((internal-border-width . 5)))
-;;   :config
-;;   ;; (setq company-box-doc-frame-parameters '((internal-border-width . 2) (left . 44) (right . -44)))
-;;   (setq company-box-doc-frame-parameters '((left . -44) (right . -44)))
-;;   ;; (setq company-box-doc-enable t)
-;;   ;; (setq company-box-frame-top-margin 200)  ; this would move the main pop up box away from typing area
-;;   )
-
-;; (setq company-format-margin-function    #'company-vscode-dark-icons-margin)
-
-
-
-;; Remove the function responsible for notes from the list
-;; (setq flymake-diagnostic-functions
-;;       (remove 'flymake-proc-legacy-flymake flymake-diagnostic-functions))
-
-
 (defun my-kill-word ()
   (interactive)
   (backward-word nil)

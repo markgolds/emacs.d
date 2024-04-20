@@ -35,7 +35,7 @@
          "* %? %(org-set-tags)  :note: \n:PROPERTIES:\n:Created: %U\n:Linked: %A\n:END:\n%i"  ; template
          :prepend t        ; properties
          :empty-lines 1    ; properties
-         :created t        ; properties)
+         :created t)        ; properties)
 	
 	("w"               ; key
          "Weights"         ; name
@@ -43,7 +43,7 @@
          (file "~/Dropbox/org/habits/weights.org" )  ; target
 	 "|%U|%^{weight}|%^{comment}|"
          :prepend t        ; properties
-         :kill-buffer t    ; properties)
+         :kill-buffer t)    ; properties)
 	
 	("q"               ; key
 	 "Quick note"      ; name
@@ -52,7 +52,7 @@
 	 "* %?\nEntered on %U\n" ;template
 	 :prepend t        ; properties
 	 :empty-lines 1    ; properties
-	 :created t        ; properties)
+	 :created t)        ; properties)
 	 
 	("d"               ; key
 	 "Todos"           ; name
@@ -61,7 +61,7 @@
 	 "* %?\nEntered on %U\n" ;template
 	 :prepend t        ; properties
 	 :empty-lines 1    ; properties
-	 :created t        ; properties)
+	 :created t)        ; properties)
 	
 	("t"               ; key
 	 "Time Log"        ; name
@@ -70,7 +70,7 @@
 	 "* %?\nEntered on %U\n" ;template
 	 :prepend t        ; properties
 	 :empty-lines 1    ; properties
-	 :created t        ; properties)
+	 :created t)        ; properties)
 	 
 	 ("j"              ; key
 	  "Journal"        ; name
@@ -181,9 +181,10 @@
 
 ;; Create a new jupyter block with C-c j
 (eval-after-load 'org
-  '(define-key org-mode-map (kbd "C-c j") 'insert-my-jupyter-block)
-  '(define-key org-mode-map (kbd "C-c p") 'insert-my-python-block)
-  )
+  '(progn
+     (define-key org-mode-map (kbd "C-c j") 'insert-my-jupyter-block)
+     (define-key org-mode-map (kbd "C-c p") 'insert-my-python-block)
+  ))
 
 ;; Make org headers smaller
 (defun my-org-customize-font ()

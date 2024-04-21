@@ -568,7 +568,8 @@
            :header-line-width 4
            :mode-line-width 6
            :tab-width 4
-           :right-divider-width 1
+           ;; :right-divider-width 1
+           :right-divider-width 20
            :scroll-bar-width 0
            :left-fringe-width 20
            :right-fringe-width 20))
@@ -818,28 +819,28 @@
 ;; (set-frame-font "Menlo:pixelsize=13")
 ;; (set-frame-font "Inconsolata:pixelsize=15")
 
-;; (use-package ef-themes
-;;   :ensure t
-;;   :bind
-;;   ("<f5>" . ef-themes-toggle)
-;;   :custom
-;;   (ef-themes-to-toggle '(ef-elea-dark ef-spring))
-;;   ;; (ef-themes-variable-pitch-ui t)
-;;   (ef-themes-mixed-fonts t)
-;;   (ef-themes-headings '((0 1.4) (1 1.3) (2 1.2) (3 1.1)))
-;;   :init
-;;   (load-theme (if (display-graphic-p) 'ef-spring 'ef-symbiosis) t))
+(use-package ef-themes
+  :ensure t
+  :bind
+  ("<f5>" . ef-themes-toggle)
+  :custom
+  (ef-themes-to-toggle '(ef-maris-dark ef-maris-light))
+  ;; (ef-themes-variable-pitch-ui t)
+  (ef-themes-mixed-fonts t)
+  (ef-themes-headings '((0 1.4) (1 1.3) (2 1.2) (3 1.1)))
+  :init
+  (load-theme (if (display-graphic-p) 'ef-maris-light 'ef-maris-dark) t))
 
 
-(use-package modus-themes
-  :config
-  ;; Add all your customizations prior to loading the themes
-  (setq modus-themes-italic-constructs nil
-	modus-themes-bold-constructs t
-	modus-themes-slanted-constructs nil)
-  (setq modus-themes-to-toggle '(modus-vivendi-tinted modus-operandi-tinted))
-  (load-theme 'modus-operandi-tinted t)
-  (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
+;; (use-package modus-themes
+;;   :config
+;;   ;; Add all your customizations prior to loading the themes
+;;   (setq modus-themes-italic-constructs nil
+;; 	modus-themes-bold-constructs t
+;; 	modus-themes-slanted-constructs nil)
+;;   (setq modus-themes-to-toggle '(modus-vivendi-tinted modus-operandi-tinted))
+;;   (load-theme 'modus-operandi-tinted t)
+;;   (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
 
 ;; use-package with package.el:
 ;; (use-package dashboard
@@ -1053,6 +1054,9 @@
 (define-key global-map (kbd "C-<home>") #'scroll-down-one-line)
 
 (define-key global-map (kbd "M-m") #'duplicate-dwim)
+
+(define-key global-map (kbd "<home>") #'beginning-of-buffer)
+(define-key global-map (kbd "<end>") #'end-of-buffer)
 
 ;; commenting
 ;; original idea from

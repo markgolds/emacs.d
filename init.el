@@ -1124,7 +1124,8 @@
             (and
              (memq sym minor-mode-list)
              (boundp sym)))
-	(propertize cmd 'face 'font-lock-constant-face)
+	;; (propertize cmd 'face 'font-lock-constant-face)
+	(propertize cmd 'face 'font-lock-warning-face)
       cmd)))
 
 ;; add-to-list works if 'file isn't already in the alist

@@ -824,12 +824,12 @@
   :bind
   ("<f5>" . ef-themes-toggle)
   :custom
-  (ef-themes-to-toggle '(ef-maris-dark ef-maris-light))
+  (ef-themes-to-toggle '(ef-trio-dark ef-maris-light))
   ;; (ef-themes-variable-pitch-ui t)
   (ef-themes-mixed-fonts t)
   (ef-themes-headings '((0 1.4) (1 1.3) (2 1.2) (3 1.1)))
   :init
-  (load-theme (if (display-graphic-p) 'ef-maris-light 'ef-maris-dark) t))
+  (load-theme (if (display-graphic-p) 'ef-maris-light 'ef-trio-dark) t))
 
 
 ;; (use-package modus-themes
@@ -894,10 +894,11 @@
 
 (with-eval-after-load 'time
   ;; (setq display-time-default-load-average nil)
-  (setq display-time-default-load-average 0)
+  (setq display-time-default-load-average nil)
   (setq display-time-24hr-format t)
   ;; (setq display-time-format "%a %b %d %R")
-  (setq display-time-format "%F %R")
+  ;; (setq display-time-format "%F %R")  ;; date and time
+  (setq display-time-format "%R")        ;; just time
   ;; (setq display-time-day-and-date t)
   )
 (display-time)
@@ -1149,6 +1150,7 @@
 (key-chord-define-global ";;" 'comment-dwim-line)
 (key-chord-define-global "\'\'" 'my-comment-copy-yank-line-or-region)
 (key-chord-define-global "aa" 'back-to-indentation)
+(key-chord-define-global "ee" 'move-end-of-line)
 (key-chord-define-global "pq"     'avy-goto-char-timer)
 (key-chord-define-global "ww" 'aw-show-dispatch-help)
 (key-chord-define-global "pw" 'ace-window)

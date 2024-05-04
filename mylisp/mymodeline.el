@@ -170,7 +170,7 @@ package).")
 		"     "
 		my-modeline-god
 		;; "        "
-		(:eval (propertize " " 'display '((space :align-to (- right 22)))))
+		(:eval (propertize " " 'display '((space :align-to (- right 3)))))
 		my-modeline-misc-info
 
 		))

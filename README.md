@@ -22,5 +22,5 @@ Download Symbols Nerd Font: https://www.nerdfonts.com/font-downloads
 Inside a virtualenv:
 
 ```
-pip install pyright ruff debugpy isort
+pip install pyright ruff debugpy isort pylint
 ```
